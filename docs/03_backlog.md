@@ -41,9 +41,9 @@ Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON,
   - EventBridge metric screenshot showing PutEvents invocation count
   - Curl test command and sample response in docs/04_runbook.md
 - **Dependencies:** None (pre-req for ING-02)
-- **Status:** Not Started
+- **Status:** In Progress
 - **Owner:** TBD
-- **Start Evidence:** (blank until in-progress)
+- **Start Evidence:** branch=feature/slice-0 (work started)  
 - **Completion Evidence:** (blank until done)
 
 ---
