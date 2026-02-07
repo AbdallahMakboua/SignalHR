@@ -4,12 +4,32 @@
 
 ---
 
+## ⚠️ AWS BLOCKED — LOCAL SIMULATION MODE (CR-2026-003)
+
+**Status:** All AWS services (EventBridge, DynamoDB, SQS, Lambda, API Gateway, Bedrock, CloudWatch, CloudTrail, SageMaker) are blocked by explicit deny policies.
+
+**Solution:** Operating in LOCAL-SIMULATION MVP mode. Python-based simulators replace AWS services for hackathon execution.
+
+**Local Deployment (Default):**
+```bash
+bash scripts/run_local.sh    # Start API + simulators
+bash scripts/demo.sh         # Run 3-user scenario
+```
+
+**AWS Deployment (When Permissions Available):**
+AWS architecture remains the mandated design. Local code uses abstractions that can be swapped to AWS services.
+
+**See:** `docs/CHANGE_REQUESTS.md#CR-2026-003` for full details and post-demo validation plan.
+
+---
+
 ## Deployment Mode Declaration (NEW)
 
 **Allowed deployment modes for MVP:**
-- ✅ **AWS Console:** Manual resource creation via AWS web interface (CloudFormation console, DynamoDB console, etc.)
-- ✅ **AWS CLI:** Manual CLI commands for resource creation (e.g., `aws s3 mb`, `aws dynamodb create-table`)
-- ✅ **CloudFormation / Terraform:** Infrastructure-as-code (IaC) templates for reproducible deployment (static files, no CI/CD automation)
+- ✅ **Local Python:** FastAPI server + in-memory simulators (current mode due to AWS permissions blocker)
+- ✅ **AWS Console:** Manual resource creation via AWS web interface (when permissions available)
+- ✅ **AWS CLI:** Manual CLI commands for resource creation (when permissions available)
+- ✅ **CloudFormation / Terraform:** Infrastructure-as-code (when permissions available)
 
 **Prohibited deployment modes:**
 - ❌ **Auto CI/CD pipelines:** No GitHub Actions, CodePipeline, or automatic deploys on git push
@@ -17,9 +37,135 @@
 - ❌ **Lambda zip automation:** No automatic Lambda package uploads (manual deployment via Console or CLI)
 - ❌ **Amplify auto-deploy:** Amplify app deployed manually via Console; no auto-deploy on git commit
 
-**Rationale:** MVP is 48-hour hackathon. Manual deployment is faster, more transparent, and eliminates accidental auto-deploys during code changes.
+**Rationale:** MVP is 48-hour hackathon. Manual/local deployment is faster, more transparent, and eliminates accidental auto-deploys during code changes.
 
-**Enforcement:** Before each deployment step, developer must confirm mode (Console or CLI) and record in docs/03_backlog.md task evidence.
+**Enforcement:** Before each deployment step, developer must confirm mode (Local, Console, or CLI) and record in docs/03_backlog.md task evidence.
+
+---
+
+## Local Deployment (ING-01/ING-02/ING-03/PROC-01/PROC-03 Simulators)
+
+**Status:** ✅ Operational (BUGFIX applied 2026-02-07)
+
+### Quick Start
+
+```bash
+bash scripts/run_local.sh    # Start FastAPI + in-memory simulators
+bash scripts/demo.sh         # Run 3-user scenario
+```
+
+**Expected duration:** <2 minutes
+
+### Runtime Stability (BUGFIX — 2026-02-07)
+
+**Issue Fixed:** Python module resolution (`ModuleNotFoundError: No module named 'core'`)
+
+**Solution:** Added `export PYTHONPATH="${REPO_ROOT}:${PYTHONPATH:-}"` to both `scripts/run_local.sh` and `scripts/demo.sh`
+
+**Verification:** ✅ All imports resolve correctly
+```bash
+export PYTHONPATH="/Users/abdallahmakboua/Desktop/Hackathon/SignalHR:${PYTHONPATH:-}"
+python3 << 'EOF'
+from core.bus import EventBus
+from core.queue import QueuePair
+from store.aggregates_store import AggregatesStore
+from lambdas.normalize_handler import normalize_event
+print("✓ All imports successful")
+EOF
+```
+
+**Server Status:** ✅ FastAPI server starts and responds to health checks
+```bash
+# Health endpoint at http://127.0.0.1:8000/health
+# Expected response: {"status":"healthy","bus":true,"queue":true}
+```
+
+For full bugfix details, see `docs/BUGFIX_IMPORT_RESOLUTION.md`.
+
+### Allowed Deployment Modes (Local Simulation)
+
+**Python-based simulators (current):**
+- ✅ **Local execution:** `bash scripts/run_local.sh && bash scripts/demo.sh` (default)
+- ✅ **Manual testing:** Post events via `curl` to http://127.0.0.1:8000/events
+
+**Prohibited modes:**
+- ❌ **AWS services:** All AWS services (EventBridge, DynamoDB, SQS, etc.) blocked by explicit deny
+- ❌ **Auto CI/CD:** No GitHub Actions or automatic deployment
+
+**Rationale:** Local simulators enable demo execution while AWS permissions blocker is resolved.
+
+**Enforcement:** Before demo, verify `scripts/run_local.sh` completes without errors. Outputs saved to `artifacts/local_demo_<timestamp>/`.
+
+---
+
+## AWS Deployment (ING-01 Deployment Record) (BLOCKED)
+
+**Status:** AWS services unavailable. See CR-2026-003 for details.
+
+**Scope (when available):** HTTP API (API Gateway v2) + EventBridge PutEvents integration. Minimal ING-02 prerequisite: create EventBridge bus only (no Pipes yet).
+
+**Region:** us-east-2 (NOTE: Project brief defaults to us-east-1; DRAFT CR logged for region variance.)
+
+### Resources (Populate after CLI execution when permissions available)
+
+| Resource | Name | ARN / ID | Status |
+|---|---|---|---|
+| EventBridge Bus | signalhr-bus-dev | <BUS_ARN> | Not yet deployed |
+| IAM Role (APIGW → EventBridge) | signalhr-apigw-putevents-role-dev | <ROLE_ARN> | Not yet deployed |
+| HTTP API | signalhr-ingest-http-api-dev | <API_ID> | Not yet deployed |
+| HTTP API Stage | dev | <STAGE_NAME> | Not yet deployed |
+| API Endpoint | https://<API_ID>.execute-api.us-east-2.amazonaws.com/dev | <API_ENDPOINT> | Not yet deployed |
+
+### CLI Script References
+
+- Deployment: `scripts/deploy_ingestion.sh`
+- Test: `scripts/test_ingestion.sh`
+
+### Evidence to Capture
+
+- CLI outputs: API ID, Role ARN, Bus ARN, API endpoint URL
+- EventBridge PutEvents metric increment (CloudWatch)
+- API Gateway access logs (HTTP 200/202)
+
+---
+
+## Permissions Blockers (NEW — 2026-02-07)
+
+**Status:** BLOCKED  
+**Root Cause:** EventBridge bus creation (events:CreateEventBus) denied by IAM explicit deny on role `arn:aws:sts::528613214077:assumed-role/WSParticipantRole/Participant`
+
+### Denied Action Details
+
+| Field | Value |
+|---|---|
+| **Service** | EventBridge (events) |
+| **Action** | CreateEventBus |
+| **Resource ARN** | arn:aws:events:us-east-2:528613214077:event-bus/signalhr-bus-dev |
+| **Principal Role** | arn:aws:sts::528613214077:assumed-role/WSParticipantRole/Participant |
+| **Error Message** | AccessDenied: User is not authorized to perform: events:CreateEventBus on resource: ... |
+| **Region** | us-east-2 |
+| **Timestamp** | 2026-02-07 (current) |
+
+### Impact
+
+- **Blocked:** ING-01 (API Gateway integration requires existing EventBridge bus)
+- **Blocked:** ING-02 (Pipes cannot be created without bus)
+- **Cascading:** ING-03, PROC-01 (downstream tasks depend on event flow)
+
+### Next Action: Mentor Request
+
+**Option 1: Create bus via mentor**
+  - Mentor creates EventBridge bus `signalhr-bus-dev` in us-east-2 using AWS Console or CLI
+  - After bus creation, re-run `bash scripts/deploy_ingestion.sh` with `BUS_NAME=signalhr-bus-dev` (script will discover and use existing bus)
+
+**Option 2: Grant permission**
+  - Mentor grants `events:CreateEventBus` permission to `WSParticipantRole` on wildcard or specific bus ARN
+  - Command to discover available buses (before mentor request):
+    ```bash
+    aws events list-event-buses --region us-east-2
+    ```
+
+**See:** `docs/MENTOR_MESSAGE.md` for ready-to-send Discord message template
 
 ---
 

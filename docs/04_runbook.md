@@ -4,6 +4,55 @@
 
 ---
 
+## ⚠️ EMERGENCY: LOCAL SIMULATION MODE (CR-2026-003)
+
+**Status:** AWS services blocked by explicit deny policies. Running in LOCAL-SIMULATION MVP mode.
+
+**See:** `docs/CHANGE_REQUESTS.md#CR-2026-003` for full details.
+
+**Quick Start (LOCAL):**
+```bash
+# 1. Start local simulator (API + EventBridge + SQS)
+bash scripts/run_local.sh
+
+# 2. Run demo (3-user scenario)
+bash scripts/demo.sh
+
+# Total time: <2 minutes
+```
+
+**Outputs:** `artifacts/local_demo_<timestamp>/`
+- `01_bus_metrics.json` — EventBridge events
+- `02_queue_metrics.json` — SQS queue depth
+- `03_aggregates.json` — DynamoDB aggregates
+- `DEMO_SUMMARY.md` — Report
+
+**Architecture:** Local Python simulators mirror AWS design. Swap to AWS later when permissions available.
+
+### Python Module Resolution (Local Simulator)
+
+**Status:** ✅ Fixed (BUGFIX applied 2026-02-07)
+
+The local simulator requires Python to discover packages in the repo root. Both `scripts/run_local.sh` and `scripts/demo.sh` automatically set `PYTHONPATH` to resolve imports from `core/`, `api/`, `store/`, and `lambdas/` directories.
+
+**Verification:** Imports resolve correctly
+```bash
+export PYTHONPATH="/Users/abdallahmakboua/Desktop/Hackathon/SignalHR:${PYTHONPATH:-}"
+python3 << 'EOF'
+from core.bus import EventBus
+from core.queue import QueuePair
+from store.aggregates_store import AggregatesStore
+from lambdas.normalize_handler import normalize_event
+print("✓ All imports successful")
+EOF
+```
+
+**Expected output:** `✓ All imports successful`
+
+For details on this bugfix, see `docs/BUGFIX_IMPORT_RESOLUTION.md`.
+
+---
+
 ## Prerequisites & Environment Validation (Phase 0)
 
 Before starting the demo, verify the environment:
@@ -24,12 +73,13 @@ Before starting the demo, verify the environment:
 
 ### Environment Variables (set before demo)
 ```bash
-export AWS_REGION=us-east-1
+# NOTE: Project brief defaults to us-east-1. Current execution uses us-east-2 (see DRAFT CR).
+export AWS_REGION=us-east-2
 export AWS_PROFILE=default  # or your configured profile
 export DEMO_TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 export DEMO_WEEK=2026-W06  # Fixed week for determinism
 export S3_REPORTS=s3://signalhr-test-reports/demo/${DEMO_TIMESTAMP}
-export API_ENDPOINT=https://<api-id>.execute-api.us-east-1.amazonaws.com/dev
+export API_ENDPOINT=https://<api-id>.execute-api.us-east-2.amazonaws.com/dev
 ```
 
 ### Validation Commands (run once before demo)
@@ -48,6 +98,13 @@ aws dynamodb describe-table --table-name AggregatesTable-dev
 aws dynamodb describe-table --table-name AlertsTable-dev
 
 # Verify S3 buckets exist
+
+# Test synthetic generator locally (no AWS required)
+cd /Users/abdallahmakboua/Desktop/Hackathon/SignalHR
+python3 tools/synthetic_generator.py --profile alice --rate 10 --duration 0.01 --dry-run | head -5
+
+# Test normalization handler locally (no AWS required)
+python3 -m pytest tests/test_normalize.py -v
 aws s3 ls signalhr-raw-events-dev/
 aws s3 ls signalhr-aggregates-dev/
 
@@ -65,6 +122,221 @@ aws bedrock list-models
 ```
 
 **STOP CONDITION:** If ANY validation fails, HALT and file a CR. Do not proceed.
+
+---
+
+## Phase 0.5: Local Code Validation (NEW - Slice 0 Code Testing)
+
+**Objective:** Validate that the locally-created code files (generator, handler, tests) work correctly without AWS deployment.
+
+**Duration:** ~5 minutes
+**Note:** This phase MUST pass before deploying any AWS resources.
+
+### 0.5.1: Test Synthetic Generator (ING-04)
+
+**Command:**
+```bash
+cd /Users/abdallahmakboua/Desktop/Hackathon/SignalHR
+python3 tools/synthetic_generator.py --profile all --dry-run 2>&1 | head -20
+```
+
+**Expected Output:**
+- No errors
+- Sample JSON event from alice, ben, carol (one per profile)
+- Events contain: ingestionId (UUID), schemaVersion=1, userId (UUID), timestamp (ISO 8601), signals (numeric counts)
+
+**PASS CONDITION:** All 3 profiles produce valid JSON events with numeric signals only.
+
+### 0.5.2: Test Normalization Handler (PROC-01)
+
+**Commands:**
+```bash
+# Install pytest if needed
+pip3 install pytest -q
+
+# Run unit test
+python3 -m pytest tests/test_normalize.py -v
+```
+
+**Expected Output:**
+```
+tests/test_normalize.py::test_normalize_basic PASSED
+```
+
+**PASS CONDITION:** Test passes (signal coercion works, text fields dropped).
+
+### 0.5.3: Verify Generator + Handler End-to-End (Local)
+
+**Command:**
+```bash
+python3 tools/synthetic_generator.py --profile alice --rate 1000 --duration 0.001 --dry-run | \
+  python3 -c "import sys, json; from lambdas.normalize_handler import normalize_event; \
+  [print(json.dumps(normalize_event(json.loads(line)))) for line in sys.stdin if line.strip()]" | \
+  head -3
+```
+
+**Expected Output:**
+- 1–3 normalized events printed as JSON
+- Each contains: ingestionId, schemaVersion=1, timestamp, profile, signals (numeric only)
+
+**PASS CONDITION:** Normalized output contains numeric signals only; no errors.
+
+---
+
+## Phase 0.6: ING-01 Deployment (HTTP API + EventBridge) (NEW)
+
+**Objective:** Deploy API Gateway HTTP API and integrate with EventBridge PutEvents using AWS CLI only.
+
+**Prerequisite:** Set AWS_REGION=us-east-2 and AWS_PROFILE, and ensure EventBridge bus exists (created by script if missing).
+
+### 0.6.1 Deploy Ingestion API (CLI Script)
+
+**Command:**
+```bash
+cd /Users/abdallahmakboua/Desktop/Hackathon/SignalHR
+bash scripts/deploy_ingestion.sh
+```
+
+**Expected Output:**
+- EventBridge bus ARN printed
+- API ID printed
+- API Endpoint URL printed
+- IAM role ARN printed
+
+**PASS CONDITION:** API endpoint is printed and reachable (see test below).
+
+### 0.6.1a Exact AWS CLI Commands (ING-01)
+
+```bash
+export AWS_REGION=us-east-2
+export BUS_NAME=signalhr-bus-dev
+export ROLE_NAME=signalhr-apigw-putevents-role-dev
+export API_NAME=signalhr-ingest-http-api-dev
+export STAGE_NAME=dev
+
+# Create EventBridge bus (if missing)
+aws events describe-event-bus --name ${BUS_NAME} --region ${AWS_REGION} \
+  || aws events create-event-bus --name ${BUS_NAME} --region ${AWS_REGION}
+
+BUS_ARN=$(aws events describe-event-bus --name ${BUS_NAME} --region ${AWS_REGION} --query 'Arn' --output text)
+
+# Create IAM role for API Gateway
+cat > /tmp/apigw_trust.json << 'EOF'
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {"Service": "apigateway.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+
+ROLE_ARN=$(aws iam create-role \
+  --role-name ${ROLE_NAME} \
+  --assume-role-policy-document file:///tmp/apigw_trust.json \
+  --query 'Role.Arn' --output text)
+
+cat > /tmp/apigw_putevents_policy.json << EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "events:PutEvents",
+      "Resource": "${BUS_ARN}"
+    }
+  ]
+}
+EOF
+
+aws iam put-role-policy \
+  --role-name ${ROLE_NAME} \
+  --policy-name signalhr-apigw-putevents-policy \
+  --policy-document file:///tmp/apigw_putevents_policy.json
+
+# Create HTTP API
+API_ID=$(aws apigatewayv2 create-api --name ${API_NAME} --protocol-type HTTP --region ${AWS_REGION} --query 'ApiId' --output text)
+
+# Create integration
+INTEGRATION_ID=$(aws apigatewayv2 create-integration \
+  --api-id ${API_ID} \
+  --integration-type AWS_PROXY \
+  --integration-subtype EventBridge-PutEvents \
+  --credentials-arn ${ROLE_ARN} \
+  --request-parameters "EventBusName=${BUS_NAME},Source=$request.body.source,DetailType=$request.body.eventType,Detail=$request.body" \
+  --region ${AWS_REGION} \
+  --query 'IntegrationId' --output text)
+
+# Create route
+aws apigatewayv2 create-route --api-id ${API_ID} --route-key "POST /events" --target "integrations/${INTEGRATION_ID}" --region ${AWS_REGION}
+
+# Create stage
+aws apigatewayv2 create-stage --api-id ${API_ID} --stage-name ${STAGE_NAME} --auto-deploy --region ${AWS_REGION}
+
+echo "API Endpoint: https://${API_ID}.execute-api.${AWS_REGION}.amazonaws.com/${STAGE_NAME}"
+```
+
+### 0.6.2 Test Ingestion API (CLI Script)
+
+**Command:**
+```bash
+export API_ID=<api-id-from-deploy>
+bash scripts/test_ingestion.sh
+```
+
+**Expected Output:**
+- HTTP status 200 or 202
+- Response body from API
+
+**PASS CONDITION:** HTTP status is 200/202 and EventBridge PutEvents metric increments.
+
+### 0.6.3 Minimal Required Fields (Enforced by EventBridge)
+
+**Required:** `source`, `eventType`, and non-empty request body.
+
+**Expected Behavior:** If `source` or `eventType` is missing, EventBridge PutEvents fails and API returns non-2xx.
+
+**PASS CONDITION:** Invalid payloads are rejected.
+
+---
+
+## If CreateEventBus is denied (Permission Blocker Recovery)
+
+If you see: `AccessDenied: User is not authorized to perform: events:CreateEventBus`
+
+**This is expected** if your AWS role doesn't have EventBridge bus creation permission.
+
+### Step 1: List available buses
+
+```bash
+aws events list-event-buses --region us-east-2
+```
+
+### Step 2: Choose an existing bus or request creation
+
+**Option A: Use an existing bus**
+```bash
+BUS_NAME=my-existing-bus bash scripts/deploy_ingestion.sh
+```
+
+**Option B: Request mentor to create or grant permission**
+
+See `docs/MENTOR_MESSAGE.md` for ready-to-send Discord message. Share this with mentor:
+- Your role ARN: `arn:aws:sts::528613214077:assumed-role/WSParticipantRole/Participant`
+- Region: `us-east-2`
+- Bus name: `signalhr-bus-dev`
+
+Mentor will either:
+1. Create the bus using AWS Console or CLI
+2. Grant `events:CreateEventBus` permission to your role
+
+After mentor action, re-run deploy script:
+```bash
+bash scripts/deploy_ingestion.sh
+```
 
 ---
 

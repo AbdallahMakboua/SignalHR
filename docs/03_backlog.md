@@ -4,18 +4,56 @@ This file is the canonical backlog for the project. Each task includes a full sp
 
 ---
 
+## Current Implementation Snapshot (Status as of 2026-02-07 — UPDATED FOR LOCAL SIMULATION)
+
+### IMPLEMENTED (Code files created — Local Simulators)
+- **ING-01 (LOCAL):** `api/app.py` — FastAPI POST /events endpoint (replaces API Gateway v2)
+- **ING-02 (LOCAL):** `core/bus.py` — In-memory EventBridge simulator with Pipes filter/transform
+- **ING-03 (LOCAL):** `core/queue.py` — In-memory SQS queue + DLQ simulator
+- **ING-04:** `tools/synthetic_generator.py` — Deterministic generator with 3 profiles (alice/ben/carol), ready to POST to local API
+- **PROC-01 (LOCAL):** `lambdas/normalize_handler.py` + local Lambda consumer in demo script
+- **PROC-03 (LOCAL):** `store/aggregates_store.py` — SQLite aggregates store (replaces DynamoDB)
+- **TEST-INFRA:** `tests/test_normalize.py`, `tests/test_integration.py` — Unit + integration tests
+- **SCRIPTS:** `scripts/run_local.sh`, `scripts/demo.sh` — Orchestration for local simulator
+- **DOCS:** `docs/EXECUTIVE_SUMMARY.md`, updated `docs/CHANGE_REQUESTS.md` with CR-2026-003 (Emergency CR)
+- **BUGFIX:** Python module resolution (PYTHONPATH) — Fixed `ModuleNotFoundError: No module named 'core'` by setting PYTHONPATH in `scripts/run_local.sh` and `scripts/demo.sh` (2026-02-07).
+
+### NOT IMPLEMENTED (Blocked by AWS permissions)
+- **AWS RESOURCES:** All AWS services (EventBridge, DynamoDB, SQS, Lambda, API Gateway, Bedrock, CloudWatch, CloudTrail, SageMaker) blocked by explicit deny.
+- **ING-01 (AWS):** API Gateway deployment blocked
+- **ING-02 (AWS):** EventBridge bus + Pipes blocked
+- **ING-03 (AWS):** SQS queue + DLQ blocked
+- **PROC-02:** Step Functions rollup — Deferred
+- **PROC-03 (AWS):** DynamoDB tables blocked
+- **FEAT-01, FEAT-02:** Feature jobs — Deferred
+- **INT-01, INT-02, INT-03:** Rules engine, SageMaker — Deferred
+- **BED-01, BED-02:** Bedrock Agent, Safety checks — Deferred (no open-source equivalent)
+- **UI-01, UI-02:** Amplify frontend, RBAC — Deferred
+- **OBS-01 through OBS-04:** CloudWatch, X-Ray, CloudTrail setup — Deferred
+
+### DEVIATIONS & CHANGES (CR-2026-003)
+- **AWS Blocker:** Explicit deny on all AWS services except STS and S3 list-buckets. EMERGENCY CR filed.
+- **Local Simulation:** Using Python FastAPI + in-memory simulators instead of AWS services.
+- **Architecture:** AWS blueprint remains mandated; local simulators implement same logic and can swap to AWS later.
+- **Demo Mode:** Local-only (<2 minute demo) instead of AWS cloud deployment.
+- **Post-Hackathon:** Plan to migrate local code to AWS when permissions available.
+
+---
+
 ## Task Status Definitions
 1. **Not Started** — Task created but no work begun.
 2. **In Progress** — Work started; Start Evidence (branch/commit link) recorded.
 3. **Ready for Review** — Work complete; test artifacts and PR URL attached.
 4. **Review** — Reviewer validates evidence and acceptance criteria.
 5. **Done** — All evidence provided, reviewer+QA sign-off, Evidence of Completion linked.
+6. **Blocked** — Task cannot proceed (e.g., AWS permissions blocker).
+7. **Blocked (Local Workaround)** — Task blocked for AWS but local simulator created.
 
-Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON, screenshots, test reports, execution history ARNs, code commits.
+Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON, screenshots, test reports, execution history ARNs, code commits, pytest output, local simulator output.
 
 ---
 
-## INGESTION EPIC (ING) — 6 hours
+## INGESTION EPIC (ING) — LOCAL SIMULATION
 
 ### ING-01: Create REST ingestion endpoints (API Gateway)
 - **Title:** Provision API Gateway REST endpoint for event ingestion
@@ -41,10 +79,11 @@ Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON,
   - EventBridge metric screenshot showing PutEvents invocation count
   - Curl test command and sample response in docs/04_runbook.md
 - **Dependencies:** None (pre-req for ING-02)
-- **Status:** In Progress
+- **Status:** Blocked
 - **Owner:** TBD
-- **Start Evidence:** branch=feature/slice-0 (work started)  
-- **Completion Evidence:** (blank until done)
+- **Start Evidence:** files=scripts/deploy_ingestion.sh,scripts/test_ingestion.sh (created 2026-02-07); role=arn:aws:sts::528613214077:assumed-role/WSParticipantRole/Participant; region=us-east-2
+- **Blocker:** AccessDenied on events:CreateEventBus (see docs/08_deployment_plan.md#Permissions Blockers). Awaiting mentor to create bus or grant permission. Script updated to discover existing buses gracefully (see docs/04_runbook.md#If CreateEventBus is denied)
+- **Completion Evidence:** (blank until permissions resolved)
 
 ---
 
@@ -73,14 +112,11 @@ Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON,
   - Test events with unknown fields dropped (log snippet)
   - Test events without required fields rejected (Pipe failure metric)
 - **Dependencies:** ING-01 (must have event source), SQS (ING-03 in parallel)
-- **Status:** Not Started
+- **Status:** Blocked
 - **Owner:** TBD
 - **Start Evidence:** (blank until in-progress)
+- **Blocker:** EventBridge bus creation denied (ING-01 blocker). Awaiting mentor action.
 - **Completion Evidence:** (blank until done)
-
----
-
-### ING-03: Provision SQS queue + DLQ
 - **Title:** Create SQS standard queue and dead-letter queue for event buffering
 - **Description:** Provision SQS standard queue `signalhr-ingest-queue-dev` with appropriate VisibilityTimeout (2x Lambda max timeout, e.g., 600 seconds). Attach a DLQ `signalhr-ingest-dlq-dev` with redrive policy after 3 receive attempts. Configure KMS encryption with key from OBS-02. Enable CloudWatch metrics and alarms for queue depth.
 - **Inputs:**
@@ -138,10 +174,10 @@ Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON,
   - CloudWatch logs showing successful API Gateway POST (202s) for sample count
   - Synthetic user profile configurations with example signal patterns
 - **Dependencies:** ING-01 (needs API endpoint URL)
-- **Status:** Not Started
+- **Status:** In Progress
 - **Owner:** TBD
-- **Start Evidence:** (blank until in-progress)
-- **Completion Evidence:** (blank until done)
+- **Start Evidence:** file=tools/synthetic_generator.py (created 2026-02-07); command: `python tools/synthetic_generator.py --profile alice --rate 10 --duration 0.01 --dry-run`
+- **Completion Evidence:** (awaiting AWS API endpoint for POST testing)
 
 ---
 
@@ -177,10 +213,10 @@ Evidence types: CloudWatch logs, S3 object keys + checksums, DynamoDB item JSON,
   - X-Ray trace sample showing <200ms latency
   - Privacy compliance scan output (0 text fields detected)
 - **Dependencies:** ING-02, ING-03 (SQS queue), PROC-03 (DynamoDB, optional)
-- **Status:** Not Started
+- **Status:** In Progress
 - **Owner:** TBD
-- **Start Evidence:** (blank until in-progress)
-- **Completion Evidence:** (blank until done)
+- **Start Evidence:** file=lambdas/normalize_handler.py, tests/test_normalize.py (created 2026-02-07); test command: `pytest tests/test_normalize.py -v`
+- **Completion Evidence:** (awaiting SQS subscription and DynamoDB table ARNs; S3 write logic pending)
 
 ---
 

@@ -1,0 +1,16 @@
+[
+  {
+    "userId": "unknown",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "overload_trend": 1.6,
+    "context_switch_rate": 0.8,
+    "collaboration_index": 1.28,
+    "growth_index": 0.48,
+    "createdAt": "2026-02-07T03:16:51.012755"
+  }
+]

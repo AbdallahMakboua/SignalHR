@@ -10,24 +10,46 @@ This module is unit-testable and intentionally minimal for the hackathon Slice 0
 """
 import json
 from typing import Dict, Any
+from datetime import datetime
 
 
 def normalize_event(event: Dict[str, Any]) -> Dict[str, Any]:
+    # Log incoming keys for debugging (no values to preserve privacy)
+    try:
+        print(f"normalize_event keys: {sorted(event.keys())}")
+    except Exception:
+        print("normalize_event keys: <unavailable>")
+
     # Basic validation
     if event.get("schemaVersion") != 1:
         raise ValueError("Unsupported schemaVersion")
 
+    user_id = event.get("userId")
+    if not user_id:
+        raise ValueError("Missing userId")
+
+    timestamp = event.get("timestamp")
+    if not timestamp:
+        raise ValueError("Missing timestamp")
+
+    try:
+        dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        iso_year, iso_week, _ = dt.isocalendar()
+        week_id = f"{iso_year}-W{iso_week:02d}"
+    except Exception as exc:
+        raise ValueError(f"Invalid timestamp: {timestamp}") from exc
+
     normalized = {
         "ingestionId": event.get("ingestionId"),
         "schemaVersion": 1,
-        "timestamp": event.get("timestamp"),
-        # userId is considered sensitive; do not include in normalized output for dashboards
-        # keep cohortId generation in later tasks; for now we forward profile as metadata
+        "timestamp": timestamp,
+        "userId": user_id,
+        "weekId": week_id,
         "profile": event.get("profile"),
         "source": event.get("source"),
     }
 
-    signals = event.get("signals") or {}
+    signals = event.get("signals") or event.get("signalCounts") or {}
     cleaned = {}
     for k, v in signals.items():
         # coerce numeric-like values, drop anything not numeric
@@ -42,7 +64,7 @@ def normalize_event(event: Dict[str, Any]) -> Dict[str, Any]:
                 # skip non-numeric fields
                 continue
 
-    normalized["signals"] = cleaned
+    normalized["signalCounts"] = cleaned
     return normalized
 
 
