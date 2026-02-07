@@ -1,0 +1,86 @@
+[
+  {
+    "userId": "bd546f13-68f9-4a2b-b4c0-f951d7169530",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "overload_trend": 4.2,
+    "context_switch_rate": 2.1,
+    "collaboration_index": 3.36,
+    "growth_index": 1.26,
+    "createdAt": "2026-02-07T03:39:55.046527"
+  },
+  {
+    "userId": "8ad93bac-390d-4449-80d6-eb2aa8d2c2b2",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "overload_trend": 1.2000000000000002,
+    "context_switch_rate": 0.6000000000000001,
+    "collaboration_index": 0.96,
+    "growth_index": 0.36,
+    "createdAt": "2026-02-07T03:39:55.056311"
+  },
+  {
+    "userId": "54015812-45e3-4045-a3ca-edc0783b5c38",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "overload_trend": 1.6,
+    "context_switch_rate": 0.8,
+    "collaboration_index": 1.28,
+    "growth_index": 0.48,
+    "createdAt": "2026-02-07T03:39:55.066500"
+  },
+  {
+    "userId": "ddd1580e-35e4-450a-a756-3d2dc78168fe",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "overload_trend": 4.2,
+    "context_switch_rate": 2.1,
+    "collaboration_index": 3.36,
+    "growth_index": 1.26,
+    "createdAt": "2026-02-07T03:39:55.075639"
+  },
+  {
+    "userId": "abfc3327-ea71-481c-9aee-4b909310ac67",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "overload_trend": 1.2000000000000002,
+    "context_switch_rate": 0.6000000000000001,
+    "collaboration_index": 0.96,
+    "growth_index": 0.36,
+    "createdAt": "2026-02-07T03:39:55.084214"
+  },
+  {
+    "userId": "3f134a9d-cd69-4bed-9e7c-3acd5d66313f",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "overload_trend": 1.6,
+    "context_switch_rate": 0.8,
+    "collaboration_index": 1.28,
+    "growth_index": 0.48,
+    "createdAt": "2026-02-07T03:39:55.094028"
+  }
+]

@@ -85,7 +85,7 @@ echo "  ✓ DLQ depth: ${DLQ_DEPTH}"
 echo ""
 
 # Simulate Lambda processing (normalize + aggregate)
-echo "[4/4] Processing queue with normalization..."
+echo "[4/5] Processing queue with normalization..."
 python3 << 'PYTHON_EOF'
 import sys
 import json
@@ -158,6 +158,88 @@ print(f"  ✓ Output: {demo_dir}/03_aggregates.json")
 
 PYTHON_EOF
 
+# Run rules engine (AI scoring)
+echo "[5/6] Running rules engine (AI scoring)..."
+python3 << 'PYTHON_EOF'
+import sys
+import json
+from pathlib import Path
+from intelligence.rules_engine import score_aggregates
+
+demo_dir = Path(open('/tmp/signalhr_demo_dir.txt').read().strip())
+
+# Load aggregates
+with open(demo_dir / "03_aggregates.json", "r") as f:
+    aggregates = json.load(f)
+
+# Score aggregates
+alerts = score_aggregates(aggregates)
+
+# Save alerts
+with open(demo_dir / "04_alerts.json", "w") as f:
+    json.dump(alerts, f, indent=2)
+
+print(f"  ✓ {len(alerts)} alerts generated")
+
+# Print examples
+burnout_alerts = [a for a in alerts if a["burnout"]["score"] >= 0.5]
+hipo_alerts = [a for a in alerts if a["hipo"]["score"] >= 0.5]
+
+if burnout_alerts:
+    sample = burnout_alerts[0]
+    print(f"  Example burnout alert: userId={sample['userId'][:8]}... score={sample['burnout']['score']} reasons={sample['burnout']['reasons'][0] if sample['burnout']['reasons'] else 'none'}")
+
+if hipo_alerts:
+    sample = hipo_alerts[0]
+    print(f"  Example HiPo alert: userId={sample['userId'][:8]}... score={sample['hipo']['score']} reasons={sample['hipo']['reasons'][0] if sample['hipo']['reasons'] else 'none'}")
+
+print(f"  ✓ Output: {demo_dir}/04_alerts.json")
+
+PYTHON_EOF
+
+echo ""
+
+# Generate AI explainability
+echo "[6/6] Generating AI explainability (natural language)..."
+python3 << 'PYTHON_EOF'
+import sys
+import json
+from pathlib import Path
+from intelligence.explainer import explain_alerts
+
+demo_dir = Path(open('/tmp/signalhr_demo_dir.txt').read().strip())
+
+# Load alerts
+with open(demo_dir / "04_alerts.json", "r") as f:
+    alerts = json.load(f)
+
+# Generate explanations
+explanations = explain_alerts(alerts)
+
+# Save explanations
+with open(demo_dir / "05_ai_explanations.json", "w") as f:
+    json.dump(explanations, f, indent=2)
+
+print(f"  ✓ {len(explanations)} AI explanations generated")
+
+# Display one WOW moment example
+if explanations:
+    print("\n  === WOW MOMENT: AI Explainability Output ===")
+    example = explanations[0]
+    print(f"  Alert Type: {example['alertType'].upper()}")
+    print(f"  Summary: {example['summary']}")
+    print(f"  Why Flagged:")
+    for reason in example['why_flagged'][:2]:  # Show first 2 reasons
+        print(f"    - {reason}")
+    print(f"  Next Best Actions:")
+    for action in example['next_best_actions'][:2]:  # Show first 2 actions
+        print(f"    - {action}")
+    print("  ============================================\n")
+
+print(f"  ✓ Output: {demo_dir}/05_ai_explanations.json")
+
+PYTHON_EOF
+
 echo ""
 
 # Generate demo summary
@@ -186,6 +268,66 @@ cat > "${DEMO_DIR}/DEMO_SUMMARY.md" << EOF
 3. **Aggregates:** \`03_aggregates.json\`
    - Computed features per user per week
 
+4. **Alerts:** \`04_alerts.json\`
+   - AI-generated burnout/HiPo/drift alerts with explainable reasons
+
+5. **AI Explanations:** \`05_ai_explanations.json\`
+   - Natural language explanations for managers
+
+## Alert Summary
+
+$(python3 << 'PYSUM'
+import json
+from pathlib import Path
+demo_dir = Path(open("/tmp/signalhr_demo_dir.txt").read().strip())
+with open(demo_dir / "04_alerts.json", "r") as f:
+    alerts = json.load(f)
+print(f"- **Total Alerts:** {len(alerts)}")
+for alert in alerts:
+    burnout = alert["burnout"]
+    hipo = alert["hipo"]
+    user_short = alert["userId"][:8]
+    print(f"- **User {user_short}...**: Burnout={burnout['score']} ({burnout['reasons'][0] if burnout['reasons'] else 'none'}), HiPo={hipo['score']} ({hipo['reasons'][0] if hipo['reasons'] else 'none'})")
+PYSUM
+)
+
+## AI Explainability Output
+
+$(python3 << 'PYEXPLAIN'
+import json
+from pathlib import Path
+demo_dir = Path(open("/tmp/signalhr_demo_dir.txt").read().strip())
+with open(demo_dir / "05_ai_explanations.json", "r") as f:
+    explanations = json.load(f)
+
+# Find one burnout and one hipo example
+burnout_ex = next((e for e in explanations if e["alertType"] == "burnout"), None)
+hipo_ex = next((e for e in explanations if e["alertType"] == "hipo"), None)
+
+if burnout_ex:
+    print(f"### Burnout Risk Alert\n")
+    print(f"**Summary:** {burnout_ex['summary']}\n")
+    print(f"**Why Flagged:**")
+    for reason in burnout_ex['why_flagged'][:2]:
+        print(f"- {reason}")
+    print(f"\n**Recommended Actions:**")
+    for action in burnout_ex['next_best_actions'][:2]:
+        print(f"- {action}")
+    print()
+
+if hipo_ex:
+    print(f"### High Potential (HiPo) Alert\n")
+    print(f"**Summary:** {hipo_ex['summary']}\n")
+    print(f"**Why Flagged:**")
+    for reason in hipo_ex['why_flagged'][:2]:
+        print(f"- {reason}")
+    print(f"\n**Recommended Actions:**")
+    for action in hipo_ex['next_best_actions'][:2]:
+        print(f"- {action}")
+    print()
+PYEXPLAIN
+)
+
 ## Verification Checklist
 
 - [x] API endpoint responds to POST /events
@@ -200,6 +342,7 @@ cat > "${DEMO_DIR}/DEMO_SUMMARY.md" << EOF
 
 - ✓ Ingestion (ING-01, ING-02, ING-03)
 - ✓ Normalization & Aggregation (PROC-01, PROC-03)
+- ✓ Intelligence & Rules Engine (explainable AI scoring)
 - ✓ End-to-end pipeline
 - ✓ Privacy rules enforced (no text fields)
 - ✓ Deterministic output (seeded generator)

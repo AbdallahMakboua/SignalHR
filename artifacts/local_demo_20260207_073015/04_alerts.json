@@ -1,0 +1,186 @@
+[
+  {
+    "alertId": "2328aba8-d60c-4cab-bfc9-f3a7f3ba5231",
+    "userId": "bd546f13-68f9-4a2b-b4c0-f951d7169530",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 1.0,
+      "reasons": [
+        "High meeting load (5 meetings)",
+        "High message volume (37 messages)",
+        "Elevated context switching (rate: 2.10)"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 1.26)",
+        "Strong collaboration patterns (index: 3.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.5,
+      "reasons": [
+        "High meetings with no deliverables (potential calendar overload)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "createdAt": "2026-02-07T03:39:55.122739Z"
+  },
+  {
+    "alertId": "195979ca-653e-4fb1-bfab-d801a81b8929",
+    "userId": "8ad93bac-390d-4449-80d6-eb2aa8d2c2b2",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.8,
+      "reasons": [
+        "Strong contribution velocity (3 PRs)",
+        "High growth trajectory (index: 0.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "createdAt": "2026-02-07T03:39:55.122846Z"
+  },
+  {
+    "alertId": "86ef5f0a-aaa5-4ea9-b29d-a18ea737383c",
+    "userId": "54015812-45e3-4045-a3ca-edc0783b5c38",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 0.48)",
+        "Strong collaboration patterns (index: 1.28)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "createdAt": "2026-02-07T03:39:55.122854Z"
+  },
+  {
+    "alertId": "4d9ad9c2-b0e0-4720-a69f-46228561953f",
+    "userId": "ddd1580e-35e4-450a-a756-3d2dc78168fe",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 1.0,
+      "reasons": [
+        "High meeting load (5 meetings)",
+        "High message volume (37 messages)",
+        "Elevated context switching (rate: 2.10)"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 1.26)",
+        "Strong collaboration patterns (index: 3.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.5,
+      "reasons": [
+        "High meetings with no deliverables (potential calendar overload)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "createdAt": "2026-02-07T03:39:55.122861Z"
+  },
+  {
+    "alertId": "a311059c-42ec-4427-b240-92ffeab4a95e",
+    "userId": "abfc3327-ea71-481c-9aee-4b909310ac67",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.8,
+      "reasons": [
+        "Strong contribution velocity (3 PRs)",
+        "High growth trajectory (index: 0.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "createdAt": "2026-02-07T03:39:55.122867Z"
+  },
+  {
+    "alertId": "8bdf2253-5814-44ce-97ef-386fe4be8860",
+    "userId": "3f134a9d-cd69-4bed-9e7c-3acd5d66313f",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 0.48)",
+        "Strong collaboration patterns (index: 1.28)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "createdAt": "2026-02-07T03:39:55.122873Z"
+  }
+]

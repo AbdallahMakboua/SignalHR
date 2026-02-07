@@ -1,0 +1,132 @@
+[
+  {
+    "userId": "bd546f13-68f9-4a2b-b4c0-f951d7169530",
+    "weekId": "2026-W06",
+    "alertType": "burnout",
+    "summary": "This team member is showing elevated burnout risk indicators during 2026-W06. Immediate attention recommended to prevent escalation.",
+    "why_flagged": [
+      "Meeting volume exceeds healthy thresholds (5 meetings this week).",
+      "Communication load is unsustainably high (37 messages this week).",
+      "Frequent task switching patterns detected, indicating potential cognitive overload.",
+      "Sustained upward performance trend indicates high growth potential.",
+      "Demonstrates strong cross-functional collaboration and influence.",
+      "High meeting density with reduced deliverable output suggests calendar is blocking productive work."
+    ],
+    "next_best_actions": [
+      "Schedule 1:1 check-in to discuss workload and priorities",
+      "Review calendar for non-essential meetings that can be delegated or declined",
+      "Explore options for temporary workload redistribution",
+      "Ensure PTO balance is healthy and encourage time off if needed"
+    ],
+    "scores": {
+      "burnout": 1.0,
+      "hipo": 0.5,
+      "performance_drift": 0.5
+    }
+  },
+  {
+    "userId": "8ad93bac-390d-4449-80d6-eb2aa8d2c2b2",
+    "weekId": "2026-W06",
+    "alertType": "hipo",
+    "summary": "This team member is demonstrating high-potential (HiPo) signals during 2026-W06. Consider growth opportunities and retention strategies.",
+    "why_flagged": [
+      "Strong delivery output with 3 contributions this week.",
+      "Sustained upward performance trend indicates high growth potential."
+    ],
+    "next_best_actions": [
+      "Initiate career development conversation to understand growth aspirations",
+      "Identify stretch assignments or leadership opportunities",
+      "Ensure compensation and recognition align with performance level",
+      "Consider for succession planning and key talent retention programs"
+    ],
+    "scores": {
+      "burnout": 0.0,
+      "hipo": 0.8,
+      "performance_drift": 0.1
+    }
+  },
+  {
+    "userId": "54015812-45e3-4045-a3ca-edc0783b5c38",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's activity patterns during 2026-W06 are within normal operating ranges. No immediate action required.",
+    "why_flagged": [
+      "Sustained upward performance trend indicates high growth potential.",
+      "Demonstrates strong cross-functional collaboration and influence."
+    ],
+    "next_best_actions": [
+      "Continue current management approach",
+      "Schedule regular check-ins to maintain engagement"
+    ],
+    "scores": {
+      "burnout": 0.0,
+      "hipo": 0.5,
+      "performance_drift": 0.1
+    }
+  },
+  {
+    "userId": "ddd1580e-35e4-450a-a756-3d2dc78168fe",
+    "weekId": "2026-W06",
+    "alertType": "burnout",
+    "summary": "This team member is showing elevated burnout risk indicators during 2026-W06. Immediate attention recommended to prevent escalation.",
+    "why_flagged": [
+      "Meeting volume exceeds healthy thresholds (5 meetings this week).",
+      "Communication load is unsustainably high (37 messages this week).",
+      "Frequent task switching patterns detected, indicating potential cognitive overload.",
+      "Sustained upward performance trend indicates high growth potential.",
+      "Demonstrates strong cross-functional collaboration and influence.",
+      "High meeting density with reduced deliverable output suggests calendar is blocking productive work."
+    ],
+    "next_best_actions": [
+      "Schedule 1:1 check-in to discuss workload and priorities",
+      "Review calendar for non-essential meetings that can be delegated or declined",
+      "Explore options for temporary workload redistribution",
+      "Ensure PTO balance is healthy and encourage time off if needed"
+    ],
+    "scores": {
+      "burnout": 1.0,
+      "hipo": 0.5,
+      "performance_drift": 0.5
+    }
+  },
+  {
+    "userId": "abfc3327-ea71-481c-9aee-4b909310ac67",
+    "weekId": "2026-W06",
+    "alertType": "hipo",
+    "summary": "This team member is demonstrating high-potential (HiPo) signals during 2026-W06. Consider growth opportunities and retention strategies.",
+    "why_flagged": [
+      "Strong delivery output with 3 contributions this week.",
+      "Sustained upward performance trend indicates high growth potential."
+    ],
+    "next_best_actions": [
+      "Initiate career development conversation to understand growth aspirations",
+      "Identify stretch assignments or leadership opportunities",
+      "Ensure compensation and recognition align with performance level",
+      "Consider for succession planning and key talent retention programs"
+    ],
+    "scores": {
+      "burnout": 0.0,
+      "hipo": 0.8,
+      "performance_drift": 0.1
+    }
+  },
+  {
+    "userId": "3f134a9d-cd69-4bed-9e7c-3acd5d66313f",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's activity patterns during 2026-W06 are within normal operating ranges. No immediate action required.",
+    "why_flagged": [
+      "Sustained upward performance trend indicates high growth potential.",
+      "Demonstrates strong cross-functional collaboration and influence."
+    ],
+    "next_best_actions": [
+      "Continue current management approach",
+      "Schedule regular check-ins to maintain engagement"
+    ],
+    "scores": {
+      "burnout": 0.0,
+      "hipo": 0.5,
+      "performance_drift": 0.1
+    }
+  }
+]
