@@ -98,6 +98,66 @@ For full bugfix details, see `docs/BUGFIX_IMPORT_RESOLUTION.md`.
 
 ---
 
+## AWS Permissions Blocked (Explicit Deny) — Remediation Plan
+
+**Status:** ✅ Workaround in place; AWS deployment pending permissions
+
+**Problem:**
+All AWS service calls are blocked by explicit IAM deny policies in the WSParticipantRole. Affected services:
+- ❌ EventBridge (CreateEventBus, PutEvents, CreatePipe)
+- ❌ SQS (CreateQueue, SendMessage, ReceiveMessage)
+- ❌ DynamoDB (CreateTable, PutItem, GetItem, Scan)
+- ❌ Lambda (CreateFunction, InvokeFunction, UpdateFunctionCode)
+- ❌ API Gateway (CreateRestApi, CreateDeployment)
+- ❌ Step Functions (CreateStateMachine, StartExecution)
+- ❌ Bedrock (InvokeModel)
+- ❌ CloudWatch, CloudTrail, SageMaker (all blocked)
+
+**Root cause:** AWS Explicit Deny overrides all Allow statements in the role policy. See `docs/CHANGE_REQUESTS.md#CR-2026-003` for full analysis.
+
+**Current solution (hackathon):**
+Local Python simulators replace AWS services. This unblocks the demo and allows feature validation without AWS access. Simulators implement the exact same business logic as AWS services and can be swapped to AWS later.
+
+**Approved temporary changes (per CR-2026-003):**
+- `api/app.py` (FastAPI) replaces API Gateway
+- `core/bus.py` (in-memory EventBridge) replaces EventBridge
+- `core/queue.py` (in-memory SQS) replaces SQS
+- `store/aggregates_store.py` (SQLite) replaces DynamoDB
+- `intelligence/rules_engine.py` (deterministic rules) replaces SageMaker
+- `intelligence/explainer.py` (template-based) replaces Bedrock Agent
+- Demo output: `artifacts/local_demo_*/` (local filesystem) replaces S3 + CloudWatch
+
+**Post-hackathon plan:**
+1. **Request AWS permissions** (mentor to escalate to AWS/event organizers)
+   - Ask for: EventBridge, SQS, DynamoDB, Lambda, API Gateway, Bedrock minimum
+   - Do NOT request: Auto CI/CD, Terraform Cloud (manual only)
+   
+2. **Migrate to AWS** (swappable backends)
+   - Replace local simulators with AWS SDK calls (boto3)
+   - Update `scripts/run_local.sh` and `scripts/demo.sh` to use AWS endpoints
+   - No business logic changes needed (simulators are service-agnostic)
+   
+3. **Deploy IaC** (after migration)
+   - CloudFormation or Terraform (manual execution only)
+   - Infrastructure code already partially written in `docs/08_deployment_plan.md` sections below
+   
+4. **Validation** (24-hour post-demo window)
+   - Re-run demo on AWS infrastructure
+   - Verify outputs match local demo (determinism guaranteed by fixed seeds)
+   - Sign off: CR-2026-003 closed with AWS migration evidence
+
+**Escalation path:**
+- Document this in CR-2026-003
+- Contact mentor with permission request
+- Provide AWS account ID, role ARN, and required service list
+
+**Until AWS permissions are available:**
+- Use local deployment: `bash scripts/run_local.sh && bash scripts/demo.sh`
+- Expected duration: <2 minutes
+- Expected output: `artifacts/local_demo_<timestamp>/` with 5 JSON artifacts + DEMO_SUMMARY.md
+
+---
+
 ## AWS Deployment (ING-01 Deployment Record) (BLOCKED)
 
 **Status:** AWS services unavailable. See CR-2026-003 for details.

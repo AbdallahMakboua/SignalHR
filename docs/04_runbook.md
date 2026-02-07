@@ -340,6 +340,108 @@ bash scripts/deploy_ingestion.sh
 
 ---
 
+## Local Demo Output Artifacts (Phase 0.1 — Outputs Reference)
+
+When you run `bash scripts/demo.sh`, the following artifacts are generated in `artifacts/local_demo_<timestamp>/`:
+
+| Artifact | Format | Purpose | What It Proves |
+|----------|--------|---------|---|
+| `01_bus_metrics.json` | JSON | EventBridge bus event dump | ING-02 works: Events accepted by bus (shows event count, sample events, detects filtering) |
+| `02_queue_metrics.json` | JSON | SQS queue depth snapshot | ING-03 works: Queue receives routed events (shows main queue + DLQ depth) |
+| `03_aggregates.json` | JSON | DynamoDB-style aggregate store | PROC-01 + PROC-03 work: Normalization + aggregation complete (shows per-user/week features: meetings, messages, PRs, context_switch_rate, collaboration_index, growth_index) |
+| `04_alerts.json` | JSON | AI-generated alerts | INT-01 works: Rules engine scored aggregates (shows burnout, HiPo, drift scores with explainable reasons) |
+| `05_ai_explanations.json` | JSON | Natural language explanations | INT-03 works: Explainability layer produced human-readable summaries (shows summaries, why_flagged, next_best_actions per alert) |
+| `DEMO_SUMMARY.md` | Markdown | Human-readable demo report | Full pipeline visible: event counts → alert summary → explanation examples |
+| `aggregates.db` | SQLite | Persistent aggregate store | PROC-03 works: SQLite database persisted aggregates (can query with `sqlite3 aggregates.db "SELECT * FROM aggregates"`) |
+| `post_events.log` | Text | HTTP POST event logs | ING-04 works: Synthetic generator posted 90 events (shows HTTP 202 status for each POST) |
+| `server.log` | Text | FastAPI server logs | ING-01 works: API server running and processing requests (shows POST requests, validation) |
+
+---
+
+## Troubleshooting — Common Issues & Recovery
+
+### Issue: `ModuleNotFoundError: No module named 'core'`
+
+**Cause:** Python cannot find repo modules. PYTHONPATH not set.
+
+**Solution:** Already fixed. Both `scripts/run_local.sh` and `scripts/demo.sh` set PYTHONPATH automatically.
+
+**Verify:**
+```bash
+export PYTHONPATH="/Users/abdallahmakboua/Desktop/Hackathon/SignalHR:${PYTHONPATH:-}"
+python3 << 'EOF'
+from core.bus import EventBus
+from api.app import EventPayload
+from store.aggregates_store import AggregatesStore
+print("✓ All imports successful")
+EOF
+```
+
+### Issue: `HTTP 422 Validation Error` on POST /events
+
+**Cause:** API validation failed. Event payload missing required fields or has wrong field names.
+
+**Solution:** Check that payload has:
+- `signalCounts` (dict of numeric counts, not `signals`)
+- `eventType` (optional, defaults to "signal.ingestion.v1")
+- `userId` (required, UUID string)
+- `timestamp` (ISO 8601)
+
+**Verify:**
+```bash
+cat > /tmp/test_event.json << 'EOF'
+{
+  "userId": "test-user",
+  "timestamp": "2026-02-07T10:00:00Z",
+  "signalCounts": {"meetings": 3, "messages": 20},
+  "ingestionId": "test-id",
+  "source": "synthetic",
+  "schemaVersion": 1
+}
+EOF
+
+curl -X POST http://127.0.0.1:8000/events \
+  -H "Content-Type: application/json" \
+  -d @/tmp/test_event.json
+```
+
+**Expected:** HTTP 202 response
+
+### Issue: `HTTP 400 - Event filtered by Pipes`
+
+**Cause:** EventBridge Pipes schema validation rejected the event (field filtering).
+
+**Solution:** Verify event only contains whitelisted fields:
+- `signalCounts` (numeric), `signals` (numeric), `userId`, `timestamp`, `eventType`, `ingestionId`, `source`, `profile`, `schemaVersion`
+- No text fields like `message`, `content`, `description`
+
+**Check:** View `artifacts/local_demo_*/validation_errors.log` if it exists
+
+### Issue: `API error: bind: address already in use` (Port 8000 in use)
+
+**Cause:** Stray FastAPI process still running on port 8000.
+
+**Solution:** Kill process and restart
+```bash
+lsof -ti tcp:8000 | xargs kill -9
+bash scripts/run_local.sh
+```
+
+### Issue: Demo produces 0 alerts
+
+**Cause:** Aggregates weren't processed by rules engine (previous failure in demo.sh).
+
+**Solution:** Check that `03_aggregates.json` was created (step [4/5] of demo.sh completed successfully)
+
+**Verify:**
+```bash
+ls -la artifacts/local_demo_*/03_aggregates.json
+cat artifacts/local_demo_*/03_aggregates.json | jq length
+# Should be > 0
+```
+
+---
+
 ## Run Phases (Phase 1–5)
 
 Demo execution is split into 5 sequential phases. Each phase has allowed commands, expected outputs, verification steps, and STOP conditions. **NO ad-hoc commands outside this runbook are allowed during demo.**

@@ -1,5 +1,11 @@
 # Architecture Mapping — SignalHR MVP
 
+**CRITICAL NOTE:** This document describes the **mandated AWS reference architecture**. For the **current local simulation mode** due to AWS permissions blockers, see "Local Simulation Mode" section below.
+
+---
+
+## Mandated AWS Reference Architecture
+
 This document maps the mandated AWS Reference Architecture to concrete services and data flow. This file is part of the documentation system and must be used by all agents.
 
 High-level service mapping
@@ -49,8 +55,59 @@ Diagrams & pointers
 
 Change control: Any change to this file that impacts the mandated architecture must be accompanied by a CR in docs/CHANGE_REQUESTS.md.
 
-<!-- NEW SECTION: Architecture Guardrails & Boundaries -->
-## Architecture Guardrails & Boundaries (NEW)
+---
+
+## Local Simulation Mode (Temporary — AWS Explicit Deny)
+
+**Status:** ✅ Operational as of 2026-02-07 (CR-2026-003)
+
+**Duration:** Temporary workaround for 48-hour hackathon. AWS deployment tasks are blocked by explicit IAM deny policies.
+
+**What this means:**
+- Local Python simulators (FastAPI, in-memory EventBridge, SQS, DynamoDB) replace AWS services during the hackathon
+- The same architecture logic is implemented locally and can be swapped to AWS later
+- No code rewrites needed to migrate to AWS (business logic is service-agnostic)
+- All constraints (privacy, explainability, determinism) are enforced in local mode
+
+**AWS services NOT available (blocked by explicit deny):**
+- ❌ EventBridge (CreateEventBus, PutEvents)
+- ❌ SQS (CreateQueue, SendMessage)
+- ❌ DynamoDB (CreateTable, PutItem)
+- ❌ Lambda (CreateFunction, InvokeFunction)
+- ❌ API Gateway (CreateRestApi, etc.)
+- ❌ Bedrock (InvokeModel)
+- ❌ CloudWatch, CloudTrail, SageMaker, Amplify (all blocked)
+
+**AWS services AVAILABLE:**
+- ✅ STS (GetCallerIdentity)
+- ✅ S3 (ListBuckets only — no write access tested)
+
+**Local replacements:**
+- API Layer: `api/app.py` (FastAPI) → replaces API Gateway
+- Event Bus: `core/bus.py` (in-memory EventBridge) → replaces EventBridge
+- Queueing: `core/queue.py` (in-memory SQS) → replaces SQS
+- Storage: `store/aggregates_store.py` (SQLite) → replaces DynamoDB
+- Intelligence: `intelligence/rules_engine.py` (deterministic rules) → replaces SageMaker
+- Explainability: `intelligence/explainer.py` (template-based) → replaces Bedrock Agent
+
+**Quick start (local mode):**
+```bash
+bash scripts/run_local.sh   # Start FastAPI + simulators
+bash scripts/demo.sh        # Run 3-user scenario
+# Expected: Demo completes in <2 minutes, artifacts in artifacts/local_demo_<timestamp>/
+```
+
+**Post-hackathon plan:**
+1. Request AWS permissions (EventBridge, SQS, DynamoDB, Lambda, Bedrock)
+2. Migrate local simulators to AWS services (same business logic, different backends)
+3. Replace local scripts with CloudFormation / Terraform IaC
+4. Deploy full pipeline to AWS us-east-2
+
+**The target architecture remains AWS-based.** Local simulators are a temporary execution mode to unblock the hackathon demo.
+
+---
+
+## Architecture Guardrails & Boundaries
 
 These guardrails enforce the privacy-first, signal-only mandate. They are binding for all agents and implementers.
 
