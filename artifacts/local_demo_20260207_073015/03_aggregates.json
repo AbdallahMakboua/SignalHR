@@ -11,7 +11,7 @@
     "context_switch_rate": 2.1,
     "collaboration_index": 3.36,
     "growth_index": 1.26,
-    "createdAt": "2026-02-07T03:39:55.046527"
+    "createdAt": "2026-02-07T06:58:35.466207"
   },
   {
     "userId": "8ad93bac-390d-4449-80d6-eb2aa8d2c2b2",
@@ -25,7 +25,7 @@
     "context_switch_rate": 0.6000000000000001,
     "collaboration_index": 0.96,
     "growth_index": 0.36,
-    "createdAt": "2026-02-07T03:39:55.056311"
+    "createdAt": "2026-02-07T06:58:35.477426"
   },
   {
     "userId": "54015812-45e3-4045-a3ca-edc0783b5c38",
@@ -39,7 +39,7 @@
     "context_switch_rate": 0.8,
     "collaboration_index": 1.28,
     "growth_index": 0.48,
-    "createdAt": "2026-02-07T03:39:55.066500"
+    "createdAt": "2026-02-07T06:58:35.487855"
   },
   {
     "userId": "ddd1580e-35e4-450a-a756-3d2dc78168fe",
@@ -53,7 +53,7 @@
     "context_switch_rate": 2.1,
     "collaboration_index": 3.36,
     "growth_index": 1.26,
-    "createdAt": "2026-02-07T03:39:55.075639"
+    "createdAt": "2026-02-07T06:58:35.497313"
   },
   {
     "userId": "abfc3327-ea71-481c-9aee-4b909310ac67",
@@ -67,7 +67,7 @@
     "context_switch_rate": 0.6000000000000001,
     "collaboration_index": 0.96,
     "growth_index": 0.36,
-    "createdAt": "2026-02-07T03:39:55.084214"
+    "createdAt": "2026-02-07T06:58:35.506768"
   },
   {
     "userId": "3f134a9d-cd69-4bed-9e7c-3acd5d66313f",
@@ -81,6 +81,90 @@
     "context_switch_rate": 0.8,
     "collaboration_index": 1.28,
     "growth_index": 0.48,
-    "createdAt": "2026-02-07T03:39:55.094028"
+    "createdAt": "2026-02-07T06:58:35.517322"
+  },
+  {
+    "userId": "c8165b1a-d2ae-4f7c-a61b-d79362dd0c24",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "overload_trend": 4.2,
+    "context_switch_rate": 2.1,
+    "collaboration_index": 3.36,
+    "growth_index": 1.26,
+    "createdAt": "2026-02-07T06:58:35.526448"
+  },
+  {
+    "userId": "588a72aa-9971-4c69-b018-d01325fb6d60",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "overload_trend": 1.2000000000000002,
+    "context_switch_rate": 0.6000000000000001,
+    "collaboration_index": 0.96,
+    "growth_index": 0.36,
+    "createdAt": "2026-02-07T06:58:35.538697"
+  },
+  {
+    "userId": "c014648b-9505-4a20-8b1e-6cae837e80f2",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "overload_trend": 1.6,
+    "context_switch_rate": 0.8,
+    "collaboration_index": 1.28,
+    "growth_index": 0.48,
+    "createdAt": "2026-02-07T06:58:35.547876"
+  },
+  {
+    "userId": "5948ac65-556e-4288-868d-cb0beafaab76",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "overload_trend": 4.2,
+    "context_switch_rate": 2.1,
+    "collaboration_index": 3.36,
+    "growth_index": 1.26,
+    "createdAt": "2026-02-07T06:58:35.557979"
+  },
+  {
+    "userId": "c824d758-b0b0-4fad-b221-a0b3bc9a54a9",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "overload_trend": 1.2000000000000002,
+    "context_switch_rate": 0.6000000000000001,
+    "collaboration_index": 0.96,
+    "growth_index": 0.36,
+    "createdAt": "2026-02-07T06:58:35.567341"
+  },
+  {
+    "userId": "8de6d8ee-3f4e-49f1-bce9-8c941e09ba36",
+    "weekId": "2026-W06",
+    "signalCounts": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "overload_trend": 1.6,
+    "context_switch_rate": 0.8,
+    "collaboration_index": 1.28,
+    "growth_index": 0.48,
+    "createdAt": "2026-02-07T06:58:35.576720"
   }
 ]

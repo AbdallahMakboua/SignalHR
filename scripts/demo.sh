@@ -199,28 +199,57 @@ PYTHON_EOF
 
 echo ""
 
-# Generate AI explainability
-echo "[6/6] Generating AI explainability (natural language)..."
+# Generate AI explainability using Vertex AI Gemini (with fallback to rules-based)
+echo "[6/6] Generating AI explainability (Vertex AI Gemini with fallback)..."
 python3 << 'PYTHON_EOF'
 import sys
 import json
 from pathlib import Path
-from intelligence.explainer import explain_alerts
 
 demo_dir = Path(open('/tmp/signalhr_demo_dir.txt').read().strip())
 
-# Load alerts
-with open(demo_dir / "04_alerts.json", "r") as f:
-    alerts = json.load(f)
+# Try Vertex AI Gemini first
+try:
+    print("  ℹ️  Attempting Vertex AI Gemini...", file=sys.stderr)
+    from ai.gemini_explainer import explain_alerts, ExplanationConfig
+    
+    # Load alerts
+    with open(demo_dir / "04_alerts.json", "r") as f:
+        alerts = json.load(f)
+    
+    # Load aggregates for context
+    with open(demo_dir / "03_aggregates.json", "r") as f:
+        aggregates_list = json.load(f)
+        aggregates = {agg["userId"]: agg for agg in aggregates_list}
+    
+    # Try Gemini, with fallback if credentials missing
+    try:
+        config = ExplanationConfig(use_gemini=True)
+        explanations = explain_alerts(alerts, aggregates, config)
+        print("  ✓ Using Vertex AI Gemini for explanations", file=sys.stderr)
+        ai_source = "gemini"
+    except Exception as gemini_err:
+        print(f"  ⚠️  Gemini unavailable ({str(gemini_err)[:60]}...). Using rule-based fallback.", file=sys.stderr)
+        config = ExplanationConfig(use_gemini=False)
+        explanations = explain_alerts(alerts, aggregates, config)
+        ai_source = "rule-based"
 
-# Generate explanations
-explanations = explain_alerts(alerts)
+except ImportError as e:
+    print(f"  ⚠️  Could not import Gemini module: {e}. Using rule-based fallback.", file=sys.stderr)
+    # Fallback to original rule-based explainer
+    from intelligence.explainer import explain_alerts
+    
+    with open(demo_dir / "04_alerts.json", "r") as f:
+        alerts = json.load(f)
+    
+    explanations = explain_alerts(alerts)
+    ai_source = "rule-based"
 
 # Save explanations
 with open(demo_dir / "05_ai_explanations.json", "w") as f:
     json.dump(explanations, f, indent=2)
 
-print(f"  ✓ {len(explanations)} AI explanations generated")
+print(f"  ✓ {len(explanations)} AI explanations generated ({ai_source})")
 
 # Display one WOW moment example
 if explanations:
@@ -228,6 +257,7 @@ if explanations:
     example = explanations[0]
     print(f"  Alert Type: {example['alertType'].upper()}")
     print(f"  Summary: {example['summary']}")
+
     print(f"  Why Flagged:")
     for reason in example['why_flagged'][:2]:  # Show first 2 reasons
         print(f"    - {reason}")

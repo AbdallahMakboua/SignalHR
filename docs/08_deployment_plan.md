@@ -158,6 +158,111 @@ Local Python simulators replace AWS services. This unblocks the demo and allows 
 
 ---
 
+## Google Cloud Deployment (Vertex AI for Explainability)
+
+**Status:** ✅ Available for Gemini-based AI explainability (not for full event pipeline)
+
+**Scope:** Google Cloud Vertex AI (generative AI platform) + Gemini model for HR-safe explanations. Replaces AWS Bedrock Agent.
+
+**Region:** us-central1 (Vertex AI API availability)
+
+### Prerequisites
+
+1. **Google Cloud Account & Project:**
+   ```bash
+   # Set your Google Cloud project
+   export GOOGLE_CLOUD_PROJECT=<your-gcp-project-id>
+   export GOOGLE_CLOUD_REGION=us-central1
+   
+   # Verify gcloud CLI is installed
+   gcloud --version
+   ```
+
+2. **Enable Vertex AI API:**
+   ```bash
+   gcloud services enable aiplatform.googleapis.com --project=$GOOGLE_CLOUD_PROJECT
+   ```
+
+3. **Create Service Account (for local development):**
+   ```bash
+   # Create service account
+   gcloud iam service-accounts create signalhr-gemini \
+     --display-name="SignalHR Gemini Explainer" \
+     --project=$GOOGLE_CLOUD_PROJECT
+   
+   # Grant Vertex AI User role
+   gcloud projects add-iam-policy-binding $GOOGLE_CLOUD_PROJECT \
+     --member="serviceAccount:signalhr-gemini@$GOOGLE_CLOUD_PROJECT.iam.gserviceaccount.com" \
+     --role="roles/aiplatform.user"
+   
+   # Create key
+   gcloud iam service-accounts keys create ~/signalhr-gemini-key.json \
+     --iam-account=signalhr-gemini@$GOOGLE_CLOUD_PROJECT.iam.gserviceaccount.com
+   
+   # Set credentials environment variable
+   export GOOGLE_APPLICATION_CREDENTIALS=~/signalhr-gemini-key.json
+   ```
+
+4. **Install Google Cloud SDK (Python):**
+   ```bash
+   pip install google-cloud-aiplatform
+   ```
+
+### Using Gemini Explainer (Local Demo)
+
+Once credentials are set, the demo automatically uses Gemini for AI explanations:
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=~/signalhr-gemini-key.json
+bash scripts/demo.sh
+```
+
+**Expected behavior:**
+- Step [6/6] attempts to use Vertex AI Gemini
+- If successful: Explanations include "ai_confidence" field from Gemini
+- If credentials unavailable: Gracefully falls back to rule-based explanations
+- Stderr shows which AI source was used (gemini vs rule-based)
+
+### Configuration
+
+Edit `ai/gemini_explainer.py` `ExplanationConfig`:
+
+```python
+config = ExplanationConfig(
+    project_id=os.getenv("GOOGLE_CLOUD_PROJECT"),
+    location="us-central1",
+    model_name="gemini-pro",
+    temperature=0.0,              # Deterministic mode
+    max_tokens=500,               # Limit response length
+    use_gemini=True               # Toggle to False to use rule-based fallback
+)
+```
+
+### Resources Created
+
+| Resource | Name | Purpose |
+|---|---|---|
+| Service Account | signalhr-gemini | Authenticates Python client to Vertex AI API |
+| IAM Role Binding | aiplatform.user | Grants Vertex AI API access |
+| Service Account Key | ~/signalhr-gemini-key.json | Local development credentials |
+
+### Troubleshooting
+
+| Error | Solution |
+|---|---|
+| `GOOGLE_APPLICATION_CREDENTIALS not set` | Run: `export GOOGLE_APPLICATION_CREDENTIALS=~/signalhr-gemini-key.json` |
+| `aiplatform.googleapis.com not enabled` | Run: `gcloud services enable aiplatform.googleapis.com --project=$GOOGLE_CLOUD_PROJECT` |
+| `permission denied on aiplatform.projects.locations.publishers.models.generateContent` | Verify service account has `roles/aiplatform.user` role |
+| `Gemini returns error, fallback to rules` | Check GCP quota limits or API errors in Cloud Logging |
+
+### Post-Hackathon Plan
+
+- Keep Vertex AI Gemini as secondary AI option
+- When AWS permissions available, deploy Bedrock Agent as primary option
+- Use graceful fallback to ensure demo works with or without each service
+
+---
+
 ## AWS Deployment (ING-01 Deployment Record) (BLOCKED)
 
 **Status:** AWS services unavailable. See CR-2026-003 for details.

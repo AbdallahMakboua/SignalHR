@@ -2,131 +2,193 @@
   {
     "userId": "bd546f13-68f9-4a2b-b4c0-f951d7169530",
     "weekId": "2026-W06",
-    "alertType": "burnout",
-    "summary": "This team member is showing elevated burnout risk indicators during 2026-W06. Immediate attention recommended to prevent escalation.",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 1.0/1.0 burnout risk).",
     "why_flagged": [
-      "Meeting volume exceeds healthy thresholds (5 meetings this week).",
-      "Communication load is unsustainably high (37 messages this week).",
-      "Frequent task switching patterns detected, indicating potential cognitive overload.",
-      "Sustained upward performance trend indicates high growth potential.",
-      "Demonstrates strong cross-functional collaboration and influence.",
-      "High meeting density with reduced deliverable output suggests calendar is blocking productive work."
+      "Signals align with team baseline"
     ],
     "next_best_actions": [
-      "Schedule 1:1 check-in to discuss workload and priorities",
-      "Review calendar for non-essential meetings that can be delegated or declined",
-      "Explore options for temporary workload redistribution",
-      "Ensure PTO balance is healthy and encourage time off if needed"
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
     ],
-    "scores": {
-      "burnout": 1.0,
-      "hipo": 0.5,
-      "performance_drift": 0.5
-    }
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638432Z"
   },
   {
     "userId": "8ad93bac-390d-4449-80d6-eb2aa8d2c2b2",
     "weekId": "2026-W06",
-    "alertType": "hipo",
-    "summary": "This team member is demonstrating high-potential (HiPo) signals during 2026-W06. Consider growth opportunities and retention strategies.",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
     "why_flagged": [
-      "Strong delivery output with 3 contributions this week.",
-      "Sustained upward performance trend indicates high growth potential."
+      "Signals align with team baseline"
     ],
     "next_best_actions": [
-      "Initiate career development conversation to understand growth aspirations",
-      "Identify stretch assignments or leadership opportunities",
-      "Ensure compensation and recognition align with performance level",
-      "Consider for succession planning and key talent retention programs"
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
     ],
-    "scores": {
-      "burnout": 0.0,
-      "hipo": 0.8,
-      "performance_drift": 0.1
-    }
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638622Z"
   },
   {
     "userId": "54015812-45e3-4045-a3ca-edc0783b5c38",
     "weekId": "2026-W06",
     "alertType": "baseline",
-    "summary": "This team member's activity patterns during 2026-W06 are within normal operating ranges. No immediate action required.",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
     "why_flagged": [
-      "Sustained upward performance trend indicates high growth potential.",
-      "Demonstrates strong cross-functional collaboration and influence."
+      "Signals align with team baseline"
     ],
     "next_best_actions": [
-      "Continue current management approach",
-      "Schedule regular check-ins to maintain engagement"
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
     ],
-    "scores": {
-      "burnout": 0.0,
-      "hipo": 0.5,
-      "performance_drift": 0.1
-    }
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638683Z"
   },
   {
     "userId": "ddd1580e-35e4-450a-a756-3d2dc78168fe",
     "weekId": "2026-W06",
-    "alertType": "burnout",
-    "summary": "This team member is showing elevated burnout risk indicators during 2026-W06. Immediate attention recommended to prevent escalation.",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 1.0/1.0 burnout risk).",
     "why_flagged": [
-      "Meeting volume exceeds healthy thresholds (5 meetings this week).",
-      "Communication load is unsustainably high (37 messages this week).",
-      "Frequent task switching patterns detected, indicating potential cognitive overload.",
-      "Sustained upward performance trend indicates high growth potential.",
-      "Demonstrates strong cross-functional collaboration and influence.",
-      "High meeting density with reduced deliverable output suggests calendar is blocking productive work."
+      "Signals align with team baseline"
     ],
     "next_best_actions": [
-      "Schedule 1:1 check-in to discuss workload and priorities",
-      "Review calendar for non-essential meetings that can be delegated or declined",
-      "Explore options for temporary workload redistribution",
-      "Ensure PTO balance is healthy and encourage time off if needed"
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
     ],
-    "scores": {
-      "burnout": 1.0,
-      "hipo": 0.5,
-      "performance_drift": 0.5
-    }
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638743Z"
   },
   {
     "userId": "abfc3327-ea71-481c-9aee-4b909310ac67",
     "weekId": "2026-W06",
-    "alertType": "hipo",
-    "summary": "This team member is demonstrating high-potential (HiPo) signals during 2026-W06. Consider growth opportunities and retention strategies.",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
     "why_flagged": [
-      "Strong delivery output with 3 contributions this week.",
-      "Sustained upward performance trend indicates high growth potential."
+      "Signals align with team baseline"
     ],
     "next_best_actions": [
-      "Initiate career development conversation to understand growth aspirations",
-      "Identify stretch assignments or leadership opportunities",
-      "Ensure compensation and recognition align with performance level",
-      "Consider for succession planning and key talent retention programs"
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
     ],
-    "scores": {
-      "burnout": 0.0,
-      "hipo": 0.8,
-      "performance_drift": 0.1
-    }
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638800Z"
   },
   {
     "userId": "3f134a9d-cd69-4bed-9e7c-3acd5d66313f",
     "weekId": "2026-W06",
     "alertType": "baseline",
-    "summary": "This team member's activity patterns during 2026-W06 are within normal operating ranges. No immediate action required.",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
     "why_flagged": [
-      "Sustained upward performance trend indicates high growth potential.",
-      "Demonstrates strong cross-functional collaboration and influence."
+      "Signals align with team baseline"
     ],
     "next_best_actions": [
-      "Continue current management approach",
-      "Schedule regular check-ins to maintain engagement"
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
     ],
-    "scores": {
-      "burnout": 0.0,
-      "hipo": 0.5,
-      "performance_drift": 0.1
-    }
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638858Z"
+  },
+  {
+    "userId": "c8165b1a-d2ae-4f7c-a61b-d79362dd0c24",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 1.0/1.0 burnout risk).",
+    "why_flagged": [
+      "Signals align with team baseline"
+    ],
+    "next_best_actions": [
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
+    ],
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638916Z"
+  },
+  {
+    "userId": "588a72aa-9971-4c69-b018-d01325fb6d60",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
+    "why_flagged": [
+      "Signals align with team baseline"
+    ],
+    "next_best_actions": [
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
+    ],
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.638971Z"
+  },
+  {
+    "userId": "c014648b-9505-4a20-8b1e-6cae837e80f2",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
+    "why_flagged": [
+      "Signals align with team baseline"
+    ],
+    "next_best_actions": [
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
+    ],
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.639023Z"
+  },
+  {
+    "userId": "5948ac65-556e-4288-868d-cb0beafaab76",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 1.0/1.0 burnout risk).",
+    "why_flagged": [
+      "Signals align with team baseline"
+    ],
+    "next_best_actions": [
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
+    ],
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.639074Z"
+  },
+  {
+    "userId": "c824d758-b0b0-4fad-b221-a0b3bc9a54a9",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
+    "why_flagged": [
+      "Signals align with team baseline"
+    ],
+    "next_best_actions": [
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
+    ],
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.639126Z"
+  },
+  {
+    "userId": "8de6d8ee-3f4e-49f1-bce9-8c941e09ba36",
+    "weekId": "2026-W06",
+    "alertType": "baseline",
+    "summary": "This team member's signals are within normal operating ranges (score 0.0/1.0 burnout risk).",
+    "why_flagged": [
+      "Signals align with team baseline"
+    ],
+    "next_best_actions": [
+      "Continue regular 1:1s to stay connected",
+      "Monitor for any changes in patterns",
+      "Celebrate balance and sustainable pace"
+    ],
+    "ai_confidence": 0.8,
+    "generated_at": "2026-02-07T06:58:35.639178Z"
   }
 ]

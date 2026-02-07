@@ -682,12 +682,12 @@ aws dynamodb get-item \
 
 ---
 
-## Phase 3: Scoring & Explainability (Tasks FEAT-01, FEAT-02, INT-01, INT-02, INT-03, BED-01)
+## Phase 3: Scoring & Explainability (Tasks FEAT-01, FEAT-02, INT-01, INT-02, INT-03, INT-04)
 
-**Objective:** Compute features, apply rules engine, invoke ML scoring, generate explanations via Bedrock.
+**Objective:** Compute features, apply rules engine, invoke ML scoring, generate explanations via Vertex AI Gemini (with fallback to rule-based).
 
 **Duration:** ~4 minutes
-**Determinism:** Features computed from fixed aggregates; rules applied consistently; ML endpoint deterministic (fixed seed).
+**Determinism:** Features computed from fixed aggregates; rules applied consistently; Gemini deterministic (temperature=0.0); fallback is 100% deterministic rule-based.
 
 ### Allowed Commands
 
@@ -739,23 +739,53 @@ aws sagemaker-runtime invoke-endpoint \
 cat response.json | jq .
 ```
 
-**3d. Trigger Bedrock explanation (invoke via Lambda or direct)**
+**3d. Trigger Vertex AI Gemini explanation (primary) or rule-based fallback**
 
 ```bash
-# Invoke Bedrock explanation Lambda
+# Set up Google Cloud credentials (if using Gemini)
+export GOOGLE_APPLICATION_CREDENTIALS=~/signalhr-gemini-key.json
+export GOOGLE_CLOUD_PROJECT=<your-gcp-project>
+
+# Invoke explanation via Python (automatically tries Gemini, falls back to rules)
+python3 << 'EOF'
+from ai.gemini_explainer import explain_alerts, ExplanationConfig
+from store.aggregates_store import AggregatesStore
+from intelligence.rules_engine import get_alerts
+
+# Load aggregates and alerts
+store = AggregatesStore()
+aggregates = store.get_all()
+alerts = get_alerts(aggregates)
+
+# Generate explanations (tries Gemini first, falls back to rules if unavailable)
+config = ExplanationConfig(use_gemini=True)
+explanations = explain_alerts(alerts, aggregates, config)
+
+# Save to JSON
+import json
+with open("05_ai_explanations.json", "w") as f:
+    json.dump(explanations, f, indent=2)
+
+print(f"✓ Generated {len(explanations)} explanations")
+print(f"✓ Saved to 05_ai_explanations.json")
+EOF
+
+# Expected: explanations.json with "summary", "why_flagged", "next_best_actions", "ai_source" per alert
+cat 05_ai_explanations.json | jq '.[] | {userId, alertType, ai_source}'
+```
+
+**3d-alt. Lambda-based explanation (AWS only, when permissions available):**
+
+```bash
+# If using Lambda instead of local Python
 aws lambda invoke \
-  --function-name signalhr-bedrock-explainer-dev \
+  --function-name signalhr-gemini-explainer-dev \
   --payload "{\"alertId\":\"ALERT#alice-alert-1\",\"week\":\"${DEMO_WEEK}\"}" \
   --log-type Tail \
   response.json
 
-# Expected: Explanation JSON in S3 with "why" and "next_best_actions"
+# Expected: Explanation JSON with "summary", "why_flagged", "next_best_actions"
 cat response.json | jq .
-
-# Verify explanation stored in S3
-aws s3 ls s3://signalhr-explanations-dev/ | grep alice
-
-# Example: explanations-dev/<explanationId>.json
 ```
 
 ### Expected Outputs (Phase 3)
@@ -765,7 +795,7 @@ aws s3 ls s3://signalhr-explanations-dev/ | grep alice
 | Feature Job | Feature parquet | `s3://signalhr-aggregates-dev/features/year=2026/week=W06/feature-*.parquet` |
 | Rules Engine | Alerts | `AlertsTable-dev` with entries for Alice and Ben |
 | SageMaker | Scoring output | stdout, JSON with probability and feature importances |
-| Bedrock | Explanation JSON | `s3://signalhr-explanations-dev/<explanationId>.json` |
+| Vertex AI Gemini / Rule-based | Explanation JSON | `05_ai_explanations.json` (local) or `s3://signalhr-explanations-dev/<explanationId>.json` (AWS) |
 
 ### Verification Steps
 
@@ -785,26 +815,32 @@ aws dynamodb scan \
 # Expected: At least 1 alert for Alice with ruleTriggered and topFeatures
 
 # Step 3.3: Verify explanation exists and is readable
-EXPLAIN_FILE=$(aws s3 ls s3://signalhr-explanations-dev/ | tail -1 | awk '{print $NF}')
-aws s3 cp s3://signalhr-explanations-dev/${EXPLAIN_FILE} - | jq .why
+# For local: cat 05_ai_explanations.json | jq .
+# For AWS S3: aws s3 cp s3://signalhr-explanations-dev/<file>.json - | jq .
+cat 05_ai_explanations.json | jq '.[] | {summary, why_flagged, next_best_actions}'
 
-# Expected: JSON object with "summary", "signals", "cohort_comparison"
+# Expected: JSON object with "summary", "why_flagged", "next_best_actions" per alert
 
 # Step 3.4: Verify no PII in explanation
-aws s3 cp s3://signalhr-explanations-dev/${EXPLAIN_FILE} - | grep -i "password\|ssn\|email\|phone"
+cat 05_ai_explanations.json | grep -i "password\|ssn\|email\|phone" || echo "✓ No PII detected"
 
-# Expected: No matches (empty output)
+# Expected: No matches or ✓ message
+
+# Step 3.5: Verify AI source (Gemini vs rule-based)
+cat 05_ai_explanations.json | jq '.[] | {userId, ai_source}'
+
+# Expected: "ai_source": "gemini" (if GCP credentials available) or "rule-based" (if not)
 ```
 
 ### STOP Conditions
 
 - If feature job fails, **HALT** (check Lambda logs and DynamoDB/S3 permissions).
 - If rules engine returns 0 alerts, **HALT** (thresholds too high or features not computed).
-- If SageMaker endpoint times out, **HALT and open CR for Bedrock fallback**.
-- If Bedrock returns unsafe output (detected by post-response scanner), **HALT and log incident**.
+- If SageMaker endpoint times out, **HALT and open CR for Vertex AI fallback**.
+- If Gemini returns unsafe output (detected by post-response scanner), **HALT and log incident** (or fallback to rule-based).
 - If explanation contains PII, **HALT and escalate to security** (privacy breach).
 
-**Traceability:** Task FEAT-01, FEAT-02, INT-01, INT-02, INT-03, BED-01.
+**Traceability:** Task FEAT-01, FEAT-02, INT-01, INT-02, INT-03, INT-04.
 
 ---
 

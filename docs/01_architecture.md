@@ -1,6 +1,6 @@
 # Architecture Mapping — SignalHR MVP
 
-**CRITICAL NOTE:** This document describes the **mandated AWS reference architecture**. For the **current local simulation mode** due to AWS permissions blockers, see "Local Simulation Mode" section below.
+**CRITICAL NOTE:** This document describes the **mandated AWS reference architecture** and the **current Google Cloud AI implementation**. For the **local simulation mode** due to AWS permissions blockers, see "Local Simulation Mode" section below.
 
 ---
 
@@ -16,7 +16,7 @@ High-level service mapping
 - Storage: DynamoDB (AggregatesTable) for per-user-per-week aggregates; Amazon S3 for raw reduced events + historical snapshots; Glue Data Catalog for S3 schemas.
 - Feature Jobs: AWS Glue or Lambda jobs to compute features and cohort baselines.
 - Intelligence: Lambda Rules engine (fast MVP) and SageMaker Serverless (XGBoost) for light ML.
-- Explainability & Coaching: Amazon Bedrock Agent for Manager Copilot; KB stored in S3 and optionally indexed in OpenSearch Serverless for retrieval.
+- Explainability & Coaching: ~~Amazon Bedrock Agent~~ **Google Cloud Vertex AI (Gemini)** for Manager Copilot; KB stored in S3 and optionally indexed in OpenSearch Serverless for retrieval.
 - Experience: AWS Amplify Hosting (Next.js) and Amazon Cognito for RBAC.
 - Observability: CloudWatch (logs/metrics), X-Ray (traces), CloudTrail (audit), KMS (encryption), IAM least-privilege.
 
@@ -26,7 +26,7 @@ EventBridge Pipes → SQS → Lambda Normalize
 Aggregates → DynamoDB + Raw → S3
 Feature Jobs → Feature Store
 Scoring → Alert Store
-Bedrock Agent → Explanation + Coaching
+**Vertex AI Gemini** → Explanation + Coaching (replaces Bedrock)
 UI → Alert + Why + Action + Transparency
 
 Resource naming & environment notes (dev/demo)
@@ -36,7 +36,7 @@ Resource naming & environment notes (dev/demo)
 - S3 buckets: signalhr-raw-events-dev, signalhr-aggregates-dev, signalhr-kb-dev
 - Glue DB: signalhr_raw_db
 - SageMaker model: signalhr-xgb-mvp
-- Bedrock: bedrock-agent-signalhr (logical)
+- ~~Bedrock~~ **Google Cloud Vertex AI**: gemini-pro (logical)
 
 Permissions (summary)
 - API Gateway: role to PutEvents to EventBridge (least privilege for only PutEvents on signalhr-bus-dev)
@@ -82,13 +82,19 @@ Change control: Any change to this file that impacts the mandated architecture m
 - ✅ STS (GetCallerIdentity)
 - ✅ S3 (ListBuckets only — no write access tested)
 
+**Google Cloud services AVAILABLE (for AI only):**
+- ✅ Vertex AI (generative AI platform) — used for Gemini explainability
+- ✅ Vertex AI Generative API (text-bison, gemini-pro) — available in some regions
+
 **Local replacements:**
 - API Layer: `api/app.py` (FastAPI) → replaces API Gateway
 - Event Bus: `core/bus.py` (in-memory EventBridge) → replaces EventBridge
 - Queueing: `core/queue.py` (in-memory SQS) → replaces SQS
 - Storage: `store/aggregates_store.py` (SQLite) → replaces DynamoDB
 - Intelligence: `intelligence/rules_engine.py` (deterministic rules) → replaces SageMaker
-- Explainability: `intelligence/explainer.py` (template-based) → replaces Bedrock Agent
+- Explainability: `ai/gemini_explainer.py` (Vertex AI Gemini with fallback) → replaces Bedrock Agent
+  - Primary: Google Cloud Vertex AI + Gemini (real AI, requires GCP credentials)
+  - Fallback: `intelligence/explainer.py` (template-based rules if Gemini unavailable)
 
 **Quick start (local mode):**
 ```bash
@@ -100,10 +106,11 @@ bash scripts/demo.sh        # Run 3-user scenario
 **Post-hackathon plan:**
 1. Request AWS permissions (EventBridge, SQS, DynamoDB, Lambda, Bedrock)
 2. Migrate local simulators to AWS services (same business logic, different backends)
-3. Replace local scripts with CloudFormation / Terraform IaC
-4. Deploy full pipeline to AWS us-east-2
+3. Replace Vertex AI Gemini with AWS Bedrock Agent (when AWS permissions available)
+4. Replace local scripts with CloudFormation / Terraform IaC
+5. Deploy full pipeline to AWS us-east-2
 
-**The target architecture remains AWS-based.** Local simulators are a temporary execution mode to unblock the hackathon demo.
+**The target architecture remains AWS-based.** Google Cloud Vertex AI is a temporary workaround to unblock the hackathon demo. Local simulators are a temporary execution mode to unblock the hackathon demo.
 
 ---
 
@@ -113,7 +120,7 @@ These guardrails enforce the privacy-first, signal-only mandate. They are bindin
 
 - Service access prohibitions (MAY NOT):
 	- AppSync/API Gateway/Pipes/SQS/Lambda/Step Functions **MAY NOT** persist or forward any free-text fields, message content, keystrokes, screenshots, or file contents. EventBridge Pipes must remove such fields before delivery.
-	- Bedrock Agent **MAY NOT** receive raw event payloads, `userId` in cleartext, or any PII. Only sanitized aggregates, cohort statistics, and KB excerpts may be passed.
+	- Bedrock Agent / Vertex AI Gemini **MAY NOT** receive raw event payloads, `userId` in cleartext, or any PII. Only sanitized aggregates, cohort statistics, and KB excerpts may be passed.
 	- SageMaker Serverless training or scoring **MAY NOT** access raw message text or PII; training input must be feature parquet in S3 (derived features only).
 	- OpenSearch (if used) **MAY NOT** index or store raw content or identifiers that are reversible to PII; only KB and policy/playbook content allowed.
 	- UI (Amplify/Next.js) **MAY NOT** render raw events or any PII. UI calls must be mediated by backend APIs that enforce RBAC and privacy filters.
@@ -179,7 +186,7 @@ Classify all data to enforce storage and access rules. Each class maps to permit
 - Derived:
 	- Definition: Computed features, z-scores, model inputs/outputs, alert objects, and SHAP-like explanations.
 	- Allowed storage: S3 feature store (Parquet), DynamoDB AlertsTable (summary), SageMaker artifacts (model artifacts in S3).
-	- Consumers: SageMaker (training & scoring on features), Bedrock (explanation input limited to sanitized derived data), UI (alerts and explanations per RBAC), Rules engine.
+	- Consumers: SageMaker (training & scoring on features), Bedrock / Vertex AI Gemini (explanation input limited to sanitized derived data), UI (alerts and explanations per RBAC), Rules engine.
 
 - Metadata:
 	- Definition: IngestionId, timestamps, schemaVersion, org/team identifiers (non-PII), retention markers, encryption markers.

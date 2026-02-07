@@ -1,6 +1,6 @@
 [
   {
-    "alertId": "2328aba8-d60c-4cab-bfc9-f3a7f3ba5231",
+    "alertId": "9057f32b-2f2f-4c64-ad63-e72bfc123f8f",
     "userId": "bd546f13-68f9-4a2b-b4c0-f951d7169530",
     "weekId": "2026-W06",
     "burnout": {
@@ -29,10 +29,10 @@
       "messages": 37,
       "prs": 0
     },
-    "createdAt": "2026-02-07T03:39:55.122739Z"
+    "createdAt": "2026-02-07T06:58:35.604258Z"
   },
   {
-    "alertId": "195979ca-653e-4fb1-bfab-d801a81b8929",
+    "alertId": "d54e7adc-5f7d-43ae-84c5-b534e0998c3e",
     "userId": "8ad93bac-390d-4449-80d6-eb2aa8d2c2b2",
     "weekId": "2026-W06",
     "burnout": {
@@ -59,10 +59,10 @@
       "messages": 8,
       "prs": 3
     },
-    "createdAt": "2026-02-07T03:39:55.122846Z"
+    "createdAt": "2026-02-07T06:58:35.604394Z"
   },
   {
-    "alertId": "86ef5f0a-aaa5-4ea9-b29d-a18ea737383c",
+    "alertId": "8c30b4f3-30ea-426e-8c62-9f07feb4a6a7",
     "userId": "54015812-45e3-4045-a3ca-edc0783b5c38",
     "weekId": "2026-W06",
     "burnout": {
@@ -89,10 +89,10 @@
       "messages": 13,
       "prs": 1
     },
-    "createdAt": "2026-02-07T03:39:55.122854Z"
+    "createdAt": "2026-02-07T06:58:35.604403Z"
   },
   {
-    "alertId": "4d9ad9c2-b0e0-4720-a69f-46228561953f",
+    "alertId": "505c8631-dc8c-43de-b3c7-d0a6bb3e8355",
     "userId": "ddd1580e-35e4-450a-a756-3d2dc78168fe",
     "weekId": "2026-W06",
     "burnout": {
@@ -121,10 +121,10 @@
       "messages": 37,
       "prs": 0
     },
-    "createdAt": "2026-02-07T03:39:55.122861Z"
+    "createdAt": "2026-02-07T06:58:35.604411Z"
   },
   {
-    "alertId": "a311059c-42ec-4427-b240-92ffeab4a95e",
+    "alertId": "9e0f7325-15cd-4d5d-883e-92109a85ada5",
     "userId": "abfc3327-ea71-481c-9aee-4b909310ac67",
     "weekId": "2026-W06",
     "burnout": {
@@ -151,10 +151,10 @@
       "messages": 8,
       "prs": 3
     },
-    "createdAt": "2026-02-07T03:39:55.122867Z"
+    "createdAt": "2026-02-07T06:58:35.604417Z"
   },
   {
-    "alertId": "8bdf2253-5814-44ce-97ef-386fe4be8860",
+    "alertId": "4e7b570a-2614-478d-b7ce-e991ed7b7cc6",
     "userId": "3f134a9d-cd69-4bed-9e7c-3acd5d66313f",
     "weekId": "2026-W06",
     "burnout": {
@@ -181,6 +181,190 @@
       "messages": 13,
       "prs": 1
     },
-    "createdAt": "2026-02-07T03:39:55.122873Z"
+    "createdAt": "2026-02-07T06:58:35.604423Z"
+  },
+  {
+    "alertId": "f47f0f4a-257e-4cc4-a3f6-01350e9aefd5",
+    "userId": "c8165b1a-d2ae-4f7c-a61b-d79362dd0c24",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 1.0,
+      "reasons": [
+        "High meeting load (5 meetings)",
+        "High message volume (37 messages)",
+        "Elevated context switching (rate: 2.10)"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 1.26)",
+        "Strong collaboration patterns (index: 3.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.5,
+      "reasons": [
+        "High meetings with no deliverables (potential calendar overload)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "createdAt": "2026-02-07T06:58:35.604430Z"
+  },
+  {
+    "alertId": "24a9f6b2-3033-41b8-b33e-166bed78e387",
+    "userId": "588a72aa-9971-4c69-b018-d01325fb6d60",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.8,
+      "reasons": [
+        "Strong contribution velocity (3 PRs)",
+        "High growth trajectory (index: 0.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "createdAt": "2026-02-07T06:58:35.604435Z"
+  },
+  {
+    "alertId": "d81b275b-7f31-4fd8-b26b-1ae2d05f9c14",
+    "userId": "c014648b-9505-4a20-8b1e-6cae837e80f2",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 0.48)",
+        "Strong collaboration patterns (index: 1.28)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "createdAt": "2026-02-07T06:58:35.604441Z"
+  },
+  {
+    "alertId": "c2926e14-a296-4eb1-a84f-efc4a7900b18",
+    "userId": "5948ac65-556e-4288-868d-cb0beafaab76",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 1.0,
+      "reasons": [
+        "High meeting load (5 meetings)",
+        "High message volume (37 messages)",
+        "Elevated context switching (rate: 2.10)"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 1.26)",
+        "Strong collaboration patterns (index: 3.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.5,
+      "reasons": [
+        "High meetings with no deliverables (potential calendar overload)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 5,
+      "messages": 37,
+      "prs": 0
+    },
+    "createdAt": "2026-02-07T06:58:35.604446Z"
+  },
+  {
+    "alertId": "1bc92048-d3f7-4c64-8b14-bbc7eecfc278",
+    "userId": "c824d758-b0b0-4fad-b221-a0b3bc9a54a9",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.8,
+      "reasons": [
+        "Strong contribution velocity (3 PRs)",
+        "High growth trajectory (index: 0.36)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 1,
+      "messages": 8,
+      "prs": 3
+    },
+    "createdAt": "2026-02-07T06:58:35.604452Z"
+  },
+  {
+    "alertId": "ade48b9f-9d49-497f-b71a-3ec607b0ec2c",
+    "userId": "8de6d8ee-3f4e-49f1-bce9-8c941e09ba36",
+    "weekId": "2026-W06",
+    "burnout": {
+      "score": 0.0,
+      "reasons": [
+        "No burnout indicators detected"
+      ]
+    },
+    "hipo": {
+      "score": 0.5,
+      "reasons": [
+        "High growth trajectory (index: 0.48)",
+        "Strong collaboration patterns (index: 1.28)"
+      ]
+    },
+    "performance_drift": {
+      "score": 0.1,
+      "reasons": [
+        "Baseline variance (no significant drift detected)"
+      ]
+    },
+    "topSignals": {
+      "meetings": 2,
+      "messages": 13,
+      "prs": 1
+    },
+    "createdAt": "2026-02-07T06:58:35.604457Z"
   }
 ]

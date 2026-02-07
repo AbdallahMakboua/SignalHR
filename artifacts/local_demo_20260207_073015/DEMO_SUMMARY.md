@@ -1,13 +1,13 @@
 # SignalHR Local Simulator Demo Report
 
-**Date:** Sat Feb  7 07:39:55 +04 2026
+**Date:** Sat Feb  7 10:58:35 +04 2026
 **Demo Directory:** artifacts/local_demo_20260207_073015
 
 ## Test Results
 
 - **Total Events Posted:** 90
-- **Bus Events Accepted:** 180
-- **Queue Depth:** 180
+- **Bus Events Accepted:** 360
+- **Queue Depth:** 360
 - **DLQ Messages:** 0
 
 ## Outputs
@@ -29,39 +29,23 @@
 
 ## Alert Summary
 
-- **Total Alerts:** 6
+- **Total Alerts:** 12
 - **User bd546f13...**: Burnout=1.0 (High meeting load (5 meetings)), HiPo=0.5 (High growth trajectory (index: 1.26))
 - **User 8ad93bac...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.8 (Strong contribution velocity (3 PRs))
 - **User 54015812...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.5 (High growth trajectory (index: 0.48))
 - **User ddd1580e...**: Burnout=1.0 (High meeting load (5 meetings)), HiPo=0.5 (High growth trajectory (index: 1.26))
 - **User abfc3327...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.8 (Strong contribution velocity (3 PRs))
 - **User 3f134a9d...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.5 (High growth trajectory (index: 0.48))
+- **User c8165b1a...**: Burnout=1.0 (High meeting load (5 meetings)), HiPo=0.5 (High growth trajectory (index: 1.26))
+- **User 588a72aa...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.8 (Strong contribution velocity (3 PRs))
+- **User c014648b...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.5 (High growth trajectory (index: 0.48))
+- **User 5948ac65...**: Burnout=1.0 (High meeting load (5 meetings)), HiPo=0.5 (High growth trajectory (index: 1.26))
+- **User c824d758...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.8 (Strong contribution velocity (3 PRs))
+- **User 8de6d8ee...**: Burnout=0.0 (No burnout indicators detected), HiPo=0.5 (High growth trajectory (index: 0.48))
 
 ## AI Explainability Output
 
-### Burnout Risk Alert
 
-**Summary:** This team member is showing elevated burnout risk indicators during 2026-W06. Immediate attention recommended to prevent escalation.
-
-**Why Flagged:**
-- Meeting volume exceeds healthy thresholds (5 meetings this week).
-- Communication load is unsustainably high (37 messages this week).
-
-**Recommended Actions:**
-- Schedule 1:1 check-in to discuss workload and priorities
-- Review calendar for non-essential meetings that can be delegated or declined
-
-### High Potential (HiPo) Alert
-
-**Summary:** This team member is demonstrating high-potential (HiPo) signals during 2026-W06. Consider growth opportunities and retention strategies.
-
-**Why Flagged:**
-- Strong delivery output with 3 contributions this week.
-- Sustained upward performance trend indicates high growth potential.
-
-**Recommended Actions:**
-- Initiate career development conversation to understand growth aspirations
-- Identify stretch assignments or leadership opportunities
 
 ## Verification Checklist
 

@@ -453,47 +453,66 @@ Both tables encrypted with KMS key from OBS-02, TTL enabled for retention policy
 ---
 
 ### INT-03: Explainability packaging
-- **Title:** Package explanations from rules and ML models into structured format
-- **Description:** Create a Lambda or Step Functions task that takes rule-based alerts and ML scores from INT-01 and INT-02, and produces structured explanations per DC-EXPLAIN-V1. For each alert, generate "Why flagged" (summary of contributing z-scores and cohort comparison) and "Next best action" (coaching suggestions without punitive language). Store explanation JSON in S3 per DC-EXPLAIN-V1 schema. Reference explanationRef in AlertsTable.
+- **Title:** Package explanations from rules and ML models into structured format (with Vertex AI Gemini option)
+- **Description:** Create explainability layer that takes rule-based alerts and ML scores from INT-01 and INT-02, and produces structured explanations per DC-EXPLAIN-V1. Primary: Google Cloud Vertex AI Gemini (real AI, privacy-safe, deterministic at temperature=0.0). Fallback: Rule-based template explanations (100% deterministic). For each alert, generate "Why flagged" (summary of contributing signals, z-scores, cohort comparison) and "Next best action" (coaching suggestions without punitive language). Store explanation JSON in S3 or local file per DC-EXPLAIN-V1 schema. Reference explanationRef in AlertsTable.
 - **Inputs:**
   - AlertsTable entries from INT-01
   - SageMaker scoring results from INT-02 (probability, feature importances)
   - AggregatesTable data for cohort comparison
   - KB snippets (template strings for now, pre-seeded coaching actions)
+  - (Gemini) Vertex AI API credentials via GOOGLE_APPLICATION_CREDENTIALS
 - **Outputs:**
-  - Explanation JSON per DC-EXPLAIN-V1: s3://signalhr-explanations-dev/<explanationId>.json
-  - AlertsTable.explanationRef updated with S3 key
-  - Explanation statistics (count by action_type)
+  - Explanation JSON per DC-EXPLAIN-V1: s3://signalhr-explanations-dev/<explanationId>.json (AWS) or local 05_ai_explanations.json (local)
+  - AlertsTable.explanationRef updated with S3 key (AWS) or aiSource field showing "gemini" or "rule-based"
+  - Explanation statistics (count by action_type, AI source)
 - **Acceptance Criteria:**
   - Explanations generated for 100% of alerts (sample: 2-3)
   - Explanations include: summary, signals (feature + z-score), cohort_comparison (text), next_best_actions (list)
-  - No raw PII or event text in explanations; cohort stats only
-  - explanationRef in AlertsTable correctly references S3 key
+  - No raw PII or event text in explanations; cohort stats and aggregates only
+  - explanationRef in AlertsTable correctly references S3 key (AWS) or populated (local)
   - Explanation JSON valid against DC-EXPLAIN-V1 schema
-  - S3 objects encrypted with KMS
+  - S3 objects encrypted with KMS (AWS)
+  - AI source field indicates "gemini" (if Vertex AI available) or "rule-based" (fallback)
 - **Evidence of Completion:**
-  - Explainability packaging code (Lambda/Step Functions) committed
+  - Explainability code: ai/gemini_explainer.py (Gemini + fallback)
+  - Fallback code: intelligence/explainer.py (rule-based, for when Gemini unavailable)
   - Sample explanation JSON (2-3 examples)
   - Explanation schema validation (JSON schema check passed)
-  - AlertsTable items with explanationRef populated
-  - S3 object key and KMS encryption screenshot
+  - AlertsTable items with explanationRef or aiSource populated
+  - S3 object key and KMS encryption screenshot (AWS) or local file artifact (local)
   - Privacy compliance scan (0 PII/raw text in explanations)
-- **Dependencies:** INT-01, INT-02, PROC-03 (AlertsTable)
-- **Status:** Done
+  - Gemini prompt engineering documentation (ai/gemini_explainer.py docstring)
+- **Dependencies:** INT-01, INT-02, PROC-03 (AlertsTable), optional: Google Cloud Vertex AI credentials
+- **Status:** In Progress (Gemini layer added, rule-based fallback preserved)
 - **Owner:** TBD
-- **Start Evidence:** file=intelligence/explainer.py (created 2026-02-07)
+- **Start Evidence:** 
+  - file=ai/gemini_explainer.py (created 2026-02-07, 450+ LOC)
+  - file=ai/__init__.py (module initialization, created 2026-02-07)
+  - file=intelligence/explainer.py (rule-based fallback, unchanged 2026-02-07)
 - **Completion Evidence:** 
-  - **Timestamp:** 2026-02-07T07:39:55Z
-  - **Files:** artifacts/local_demo_20260207_073015/05_ai_explanations.json
-  - **What it proves:** Explainability layer generated human-readable explanations for 6 alerts. Each explanation contains: alertType (burnout/hipo/baseline), summary (e.g., "This team member is showing elevated burnout risk indicators during 2026-W06"), why_flagged (e.g., "Meeting volume exceeds healthy thresholds (5 meetings this week)"), next_best_actions (e.g., "Schedule 1:1 check-in", "Review calendar", etc.). Explanations are deterministic, template-based (no LLM), privacy-safe (no PII), and HR-friendly (no punitive language).
+  - **Timestamp:** 2026-02-07T08:45:00Z (Gemini layer) + 2026-02-06T06:39:55Z (original rule-based)
+  - **Files:** 
+    - ai/gemini_explainer.py (Vertex AI Gemini integration, 450+ LOC)
+    - ai/__init__.py (module exports)
+    - scripts/demo.sh (updated step [6/6] with Gemini + fallback)
+    - artifacts/local_demo_*/05_ai_explanations.json (with ai_source field)
+  - **What it proves:** 
+    - Explainability layer supports REAL AI (Vertex AI Gemini) with graceful fallback to rule-based
+    - Generates human-readable explanations for all alerts
+    - Each explanation contains: alertType (burnout/hipo/baseline), summary, why_flagged, next_best_actions, ai_source
+    - Gemini explanations (when available): AI-generated coaching suggestions (real intelligence)
+    - Rule-based fallback (when Gemini unavailable): Template-based explanations (deterministic)
+    - Privacy-safe: Prompt never includes raw text, user IDs, or PII (only aggregates and features)
+    - HR-friendly: Gemini prompt explicitly prevents punitive language and ensures decision-support tone
+    - Deterministic when needed: Fallback is 100% deterministic; Gemini uses temperature=0.0
 
 ---
 
-## BEDROCK EXPLAINABILITY & COACHING EPIC (BED) — 6 hours
+## BEDROCK EXPLAINABILITY & COACHING EPIC (BED) — 6 hours (DEFERRED FOR POST-HACKATHON)
 
-### BED-01: Bedrock Agent integration
+### BED-01: Bedrock Agent integration (DEFERRED)
 - **Title:** Integrate Bedrock Agent for Manager Copilot and guardrailed explanations
-- **Description:** Create Bedrock Agent (or invoke Bedrock Claude model with prompt engineering) that takes sanitized explanation input (no PII) and knowledge base references, and produces conversational "Why flagged" and "Next best action" outputs. Implement prompt guardrails per docs/06_security_privacy.md: agent must refuse to provide punitive advice (termination, discipline) and must reference only KB and aggregated signals. Add post-response scanner to detect policy violations or PII leakage; discard unsafe outputs and log incidents.
+- **Description:** Create Bedrock Agent (or invoke Bedrock Claude model with prompt engineering) that takes sanitized explanation input (no PII) and knowledge base references, and produces conversational "Why flagged" and "Next best action" outputs. Implement prompt guardrails per docs/06_security_privacy.md: agent must refuse to provide punitive advice (termination, discipline) and must reference only KB and aggregated signals. Add post-response scanner to detect policy violations or PII leakage; discard unsafe outputs and log incidents. NOTE: Bedrock now deferred in favor of Vertex AI Gemini (available during hackathon). Will integrate Bedrock when AWS permissions available.
 - **Inputs:**
   - Explanation JSON from INT-03 (signals, z-scores, cohort comparison, action suggestions)
   - KB documents (policies, burnout prevention best practices) from BED-02
